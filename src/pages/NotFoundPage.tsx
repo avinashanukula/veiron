@@ -3,7 +3,6 @@ import { Page } from '../types';
 import { 
   Home, 
   ShieldCheck, 
-  Lock, 
   ArrowRight, 
   Terminal, 
   AlertTriangle, 
@@ -105,13 +104,13 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
           <div className="bg-[#1C1B1A] p-3 border border-[#3A3935] text-[11px] font-mono text-[#87857F] flex items-start gap-2">
             <AlertTriangle size={14} className="text-[#E5182B] shrink-0 mt-0.5" />
             <span>
-              If you intended to access the administrator ops console, use the registered cryptographic route <code className="text-white bg-[#141413] px-1 py-0.5 border border-[#3A3935]">/veiron-ops-9x2f8b1a</code> or initiate access through the navigation hub below.
+              Administrator access routes are intentionally hidden from this view. Please use approved internal channels for privileged access requests.
             </span>
           </div>
         </div>
 
         {/* Action Shortcuts Matrix */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Action 1: Return to Root Manifold */}
           <button
             onClick={handleRecalibrate}
@@ -157,27 +156,6 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
             </div>
           </button>
 
-          {/* Action 3: Ops Terminal */}
-          <button
-            onClick={() => onNavigate('admin-ops')}
-            className="p-4 bg-[#141413] hover:bg-[#2B2A28] border-2 border-[#141413] text-white text-left transition-all hover:scale-[1.02] cursor-pointer shadow-md group flex flex-col justify-between"
-          >
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-[#87857F]">
-                <Lock size={18} className="text-[#E5182B]" />
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform text-white" />
-              </div>
-              <div className="font-serif font-bold text-sm text-white pt-2">
-                Veiron Ops Control
-              </div>
-              <p className="text-[11px] text-[#A8A6A0]">
-                Access the cryptographic passkey gate for tester approvals and mail.
-              </p>
-            </div>
-            <div className="text-[10px] font-mono text-[#E5182B] pt-3 uppercase tracking-wider font-semibold">
-              GATEWAY /OPS-CTRL
-            </div>
-          </button>
         </div>
 
         {/* Secondary Quick Jump Directory */}
