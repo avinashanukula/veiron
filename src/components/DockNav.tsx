@@ -3,7 +3,7 @@ import { Page } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { 
   Globe, 
-  Activity, 
+  Package,
   Compass, 
   Boxes, 
   BookOpen, 
@@ -19,9 +19,14 @@ interface DockNavProps {
 
 export const DockNav: React.FC<DockNavProps> = ({ currentPage, onNavigate, onOpenInbox }) => {
   const { isAuthenticated, unreadCount } = useAuth();
-  const items: { id: Page; label: string; icon: React.ElementType }[] = [
+
+  // Treat 'products', 'swarmic', and 'aakashavani' all as "active" for the Products dock item
+  const isProductsActive = (page: Page) =>
+    page === 'products' || page === 'swarmic' || page === 'aakashavani';
+
+  const items: { id: Page; label: string; icon: React.ElementType; isActive?: (page: Page) => boolean }[] = [
     { id: 'home', label: 'Overview', icon: Globe },
-    { id: 'aakashavani', label: 'Aakashavani', icon: Activity },
+    { id: 'products', label: 'Products', icon: Package, isActive: isProductsActive },
     { id: 'approach', label: 'Approach', icon: Compass },
     { id: 'applications', label: 'Applications', icon: Boxes },
     { id: 'about', label: 'About', icon: BookOpen },
@@ -37,7 +42,7 @@ export const DockNav: React.FC<DockNavProps> = ({ currentPage, onNavigate, onOpe
         <div className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto no-scrollbar py-0.5 px-0.5">
           {items.map((item) => {
             const Icon = item.icon;
-            const isActive = currentPage === item.id;
+            const isActive = item.isActive ? item.isActive(currentPage) : currentPage === item.id;
 
             return (
               <button
@@ -60,6 +65,7 @@ export const DockNav: React.FC<DockNavProps> = ({ currentPage, onNavigate, onOpe
               </button>
             );
           })}
+
         </div>
 
         {/* Authenticated Inbox Quick Trigger */}

@@ -1,15 +1,24 @@
 import { User, BetaRole, InboxMessage, BetaReview, AdminUserRecord } from '../types';
+import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 
   import.meta.env.VITE_SUPABASE_URL || 'https://slfllzppphyhkpsjmupp.supabase.co';
+
+const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 'dummy-anon-key';
+
+/**
+ * Supabase JS client — used only for Auth operations (Google OAuth, email/password, session).
+ * The anon key is safe to expose in frontend code — it carries no elevated privileges.
+ */
+export const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const EDGE_MIDDLEWARE_ENDPOINT = `${SUPABASE_URL}/functions/v1/auth-middleware`;
 
 /**
  * Hardened Supabase Gateway Service (Zero Client Keys Exposed)
  * Defense-in-depth:
- * - All operations route strictly through the deployed auth-middleware Edge Function.
- * - Zero direct database connection strings, anon keys, or service role keys are exposed.
+ * - All admin operations route strictly through the deployed auth-middleware Edge Function.
  * - Session tokens carry 7-day server expiration and are invalidated upon sign-out.
  */
 class SupabaseService {
@@ -386,6 +395,83 @@ class SupabaseService {
       adminKey,
       ...reply
     });
+  }
+
+  // ── Direct Auth Methods (Supabase JS Client) ─────────────────────────────
+
+  /**
+   * Get the correct OAuth redirect URL for Google sign-in.
+   * Supports both localhost development and production (veiron.pages.dev).
+   */
+  private getRedirectUrl(): string {
+    const origin = window.location.origin;
+    return `${origin}/auth`;
+  }
+
+  /**
+   * Initiate Google OAuth sign-in via Supabase Auth.
+   * Redirects the browser to Google; Supabase handles the callback.
+   */
+  async signInWithGoogle(): Promise<void> {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: this.getRedirectUrl(),
+      },
+    });
+    if (error) throw new Error(error.message);
+  }
+
+  /**
+   * Sign up a new user with email and password via Supabase Auth.
+   * Supabase sends a confirmation email automatically.
+   */
+  async signUpWithEmail(email: string, password: string, fullName: string): Promise<void> {
+    const { error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName },
+        emailRedirectTo: this.getRedirectUrl(),
+      },
+    });
+    if (error) throw new Error(error.message);
+  }
+
+  /**
+   * Sign in an existing user with email and password via Supabase Auth.
+   */
+  async signInWithEmail(email: string, password: string): Promise<void> {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
+  }
+
+  /**
+   * Sign out the current Supabase Auth session.
+   */
+  async signOutSupabase(): Promise<void> {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) console.warn('Supabase signOut error:', error.message);
+  }
+
+  /**
+   * Send a password reset email with a secure link.
+   * The link redirects to /auth where the user can update their password.
+   */
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: this.getRedirectUrl(),
+    });
+    if (error) throw new Error(error.message);
+  }
+
+  /**
+   * Get the current Supabase Auth session (for OAuth callback handling).
+   */
+  async getSession() {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) throw new Error(error.message);
+    return data.session;
   }
 }
 

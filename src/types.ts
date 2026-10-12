@@ -1,6 +1,8 @@
 export type Page = 
   | 'home' 
   | 'aakashavani' 
+  | 'products'
+  | 'swarmic'
   | 'beta-dashboard'
   | 'admin-ops'
   | 'approach' 

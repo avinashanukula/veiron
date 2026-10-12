@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Page } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { BetaPopupModal } from '../components/BetaPopupModal';
 import { VeironLogo } from '../components/logos/VeironLogo';
 import { AakashavaniLogo } from '../components/logos/AakashavaniLogo';
 import { HorizonBanner } from '../components/HorizonBanner';
@@ -28,39 +27,7 @@ interface HomePageProps {
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const { currentUser } = useAuth();
-  const [showBetaModal, setShowBetaModal] = useState<boolean>(false);
-  const [hasDismissedModal, setHasDismissedModal] = useState<boolean>(() => {
-    try {
-      return sessionStorage.getItem('veiron_beta_popup_dismissed') === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  // Trigger modal immediately upon user scrolling down the page
-  useEffect(() => {
-    if (currentUser || hasDismissedModal) return;
-
-    const handleScroll = () => {
-      if (window.scrollY > 120) {
-        setShowBetaModal(true);
-        window.removeEventListener('scroll', handleScroll);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentUser, hasDismissedModal]);
-
-  const handleCloseModal = () => {
-    setShowBetaModal(false);
-    setHasDismissedModal(true);
-    try {
-      sessionStorage.setItem('veiron_beta_popup_dismissed', 'true');
-    } catch (e) {
-      console.warn(e);
-    }
-  };
+  
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#141413]">
       {/* 1. HERO SECTION matching Anthropic video frame 00:00 */}
@@ -465,39 +432,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* Scroll-Triggered Beta Testing Pop-up Modal */}
-      <BetaPopupModal
-        isOpen={showBetaModal}
-        onClose={handleCloseModal}
-        onOptIn={() => {
-          handleCloseModal();
-          onNavigate('auth');
-        }}
-        onSignIn={() => {
-          handleCloseModal();
-          onNavigate('auth');
-        }}
-      />
-
-      {/* Floating Early Beta Access Pill if Modal is closed & user unauthenticated */}
-      {!currentUser && !showBetaModal && (
-        <aside 
-          aria-label="Beta opt-in notice"
-          className="fixed bottom-20 left-4 sm:left-6 z-40"
-        >
-          <button
-            onClick={() => setShowBetaModal(true)}
-            className="group px-3.5 py-2 bg-[#141413] hover:bg-[#2B2A28] text-white border border-[#33322E] shadow-xl text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95"
-            title="Register for Aakashavani Beta Testing"
-          >
-            <span className="w-2 h-2 rounded-full bg-[#E5182B] animate-pulse" />
-            <span className="font-mono text-[11px] text-[#A19F97] group-hover:text-white transition-colors">
-              BETA COHORT
-            </span>
-            <span className="text-[#FAF8F5]">Opt-In</span>
-          </button>
-        </aside>
-      )}
     </div>
   );
 };

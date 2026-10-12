@@ -23,6 +23,12 @@ interface AuthContextType {
   notificationsEnabled: boolean;
   notificationPromptOpen: boolean;
   toastList: ToastNotification[];
+  // Simple Auth (Google + Email/Password)
+  signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, fullName: string) => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>;
+  // Legacy / Beta Auth (kept for BetaDashboard & Admin)
   signIn: (email: string, credential?: string) => Promise<boolean>;
   signUp: (data: {
     fullName: string;
@@ -336,6 +342,69 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // ── Simple Auth Methods (Supabase JS Client) ─────────────────────────────
+
+  const signInWithGoogle = async (): Promise<void> => {
+    await supabaseService.signInWithGoogle();
+    // Browser will redirect; nothing to update here
+  };
+
+  const signInWithEmail = async (email: string, password: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await supabaseService.signInWithEmail(email, password);
+      // Hydrate user from Supabase session
+      const session = await supabaseService.getSession();
+      if (session?.user) {
+        const supaUser = session.user;
+        const simpleUser: User = {
+          id: supaUser.id,
+          fullName: supaUser.user_metadata?.full_name || supaUser.email || 'User',
+          email: supaUser.email || '',
+          phone: '',
+          institution: '',
+          role: 'quant-researcher',
+          approvalStatus: 'approved',
+          joinedAt: new Date(supaUser.created_at).toLocaleDateString(),
+          clearanceCode: '',
+          notificationsEnabled: false,
+          testerTier: 'Standard',
+        };
+        setCurrentUser(simpleUser);
+        setSessionToken(session.access_token);
+        addToast('Signed In', `Welcome back${simpleUser.fullName ? ', ' + simpleUser.fullName : ''}!`, 'success');
+      }
+    } catch (err: any) {
+      addToast('Sign-In Failed', err?.message || 'Invalid email or password.', 'alert');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string, fullName: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await supabaseService.signUpWithEmail(email, password, fullName);
+      addToast('Account Created', 'Check your email to confirm your address.', 'success');
+    } catch (err: any) {
+      addToast('Registration Failed', err?.message || 'Could not create account.', 'alert');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const sendPasswordReset = async (email: string): Promise<void> => {
+    try {
+      await supabaseService.sendPasswordResetEmail(email);
+      addToast('Reset Email Sent', 'Check your inbox for the password reset link.', 'success');
+    } catch (err: any) {
+      addToast('Reset Failed', err?.message || 'Could not send reset email.', 'alert');
+      throw err;
+    }
+  };
+
   // Compatibility wrappers
   const signUp = async (data: {
     fullName: string;
@@ -357,12 +426,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (sessionToken) {
       supabaseService.signOut(sessionToken);
     }
+    supabaseService.signOutSupabase().catch(() => {});
     setCurrentUser(null);
     setSessionToken(null);
     setInboxMessages([]);
     localStorage.removeItem(STORAGE_KEY_USER);
     localStorage.removeItem(STORAGE_KEY_TOKEN);
-    addToast('Signed Out', 'Disconnected from Supabase beta session.', 'alert');
+    addToast('Signed Out', 'You have been signed out.', 'alert');
   };
 
   const updateUserRole = async (newRole: BetaRole) => {
@@ -503,6 +573,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         notificationsEnabled,
         notificationPromptOpen,
         toastList,
+        // Simple Auth
+        signInWithGoogle,
+        signInWithEmail,
+        signUpWithEmail,
+        sendPasswordReset,
+        // Legacy / Beta Auth
         signIn,
         signUp,
         initiateSignIn,

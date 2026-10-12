@@ -33,6 +33,14 @@ export const ROUTE_POLICIES: Record<Page, RoutePolicy> = {
     requiresAuth: false,
     friendlyName: 'Overview & World Models Foundation'
   },
+  products: {
+    requiresAuth: false,
+    friendlyName: 'Veiron Products'
+  },
+  swarmic: {
+    requiresAuth: false,
+    friendlyName: 'Swarmic — Coming Soon'
+  },
   aakashavani: {
     requiresAuth: false, // Page is viewable, but beta features require auth
     friendlyName: 'Aakashavani Financial Intelligence Model'
@@ -55,7 +63,20 @@ export const ROUTE_POLICIES: Record<Page, RoutePolicy> = {
   },
   auth: {
     requiresAuth: false,
-    friendlyName: 'Institutional Sign In & Beta Registration'
+    friendlyName: 'Sign In & Registration'
+  },
+  'beta-dashboard': {
+    requiresAuth: true,
+    requiresApprovedBetaStatus: true,
+    friendlyName: 'Beta Testing Workspace'
+  },
+  'admin-ops': {
+    requiresAuth: true,
+    friendlyName: 'Ops Control'
+  },
+  '404': {
+    requiresAuth: false,
+    friendlyName: 'Page Not Found'
   }
 };
 

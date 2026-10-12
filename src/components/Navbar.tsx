@@ -99,10 +99,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                     ? 'bg-[#141413] text-white border-[#141413]'
                     : 'bg-white hover:bg-[#FAF8F5] text-[#141413] border-[#E3E0D8] hover:border-[#141413]'
                 }`}
-                title="Sign In or Opt-in for Beta Testing"
+                title="Sign In or Create Account"
               >
                 <LogIn size={13} className="text-[#E5182B]" />
-                <span>Beta Sign In</span>
+                <span>Sign In</span>
               </button>
             )}
 

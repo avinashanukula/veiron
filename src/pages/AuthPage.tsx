@@ -1,614 +1,450 @@
 import React, { useState } from 'react';
-import { Page, BetaRole } from '../types';
+import { Page } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { BETA_ROLES, getBetaRoleInfo } from '../data/betaRoles';
 import { VeironLogo } from '../components/logos/VeironLogo';
-import { AakashavaniLogo } from '../components/logos/AakashavaniLogo';
-import { 
-  ShieldCheck, 
-  ArrowRight, 
-  Lock, 
-  Mail, 
-  Phone, 
-  Building2, 
-  User as UserIcon, 
-  CheckCircle2, 
-  Activity, 
-  Sparkles,
-  Layers,
-  Check,
-  Key,
-  RefreshCw,
+import {
+  ArrowRight,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  CheckCircle2,
   AlertCircle,
-  Clock,
-  Send,
-  X
+  RefreshCw,
 } from 'lucide-react';
-import { supabaseService } from '../services/supabaseService';
 
 interface AuthPageProps {
   onNavigate: (page: Page) => void;
   initialMode?: 'signin' | 'signup';
 }
 
-export const AuthPage: React.FC<AuthPageProps> = ({ 
+// Google icon SVG inline
+const GoogleIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+  </svg>
+);
+
+export const AuthPage: React.FC<AuthPageProps> = ({
   onNavigate,
-  initialMode = 'signup' 
+  initialMode = 'signin',
 }) => {
-  const { initiateSignIn, initiateSignUp, verifyTwoFactor, resendTwoFactor, currentUser } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, sendPasswordReset } = useAuth();
 
-  const [mode, setMode] = useState<'signin' | 'signup' | '2fa'>(initialMode);
+  type AuthMode = 'signin' | 'signup' | 'forgot';
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isResending, setIsResending] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  // 2-Step Verification State
-  const [pendingEmail, setPendingEmail] = useState('');
-  const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [pendingRole, setPendingRole] = useState<BetaRole | null>(null);
-
-  // Sign Up Form Fields
-  const [fullName, setFullName] = useState('');
+  // Form fields
   const [email, setEmail] = useState('');
-  const [phonePrefix, setPhonePrefix] = useState('+1');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [institution, setInstitution] = useState('');
-  const [selectedRole, setSelectedRole] = useState<BetaRole>('quant-researcher');
-  const [agreedToTerms, setAgreedToTerms] = useState(true);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
 
-  // Sign In Form Fields
-  const [signInEmail, setSignInEmail] = useState('');
-  const [signInPassword, setSignInPassword] = useState('');
+  const reset = () => {
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setPassword('');
+    setConfirmPassword('');
+    setShowPassword(false);
+    setShowConfirm(false);
+  };
 
-  // Request Clearance Modal State
-  const [isRequestClearanceOpen, setIsRequestClearanceOpen] = useState(false);
-  const [requestClearanceEmail, setRequestClearanceEmail] = useState('');
-  const [isRequestingClearance, setIsRequestingClearance] = useState(false);
-  const [requestClearanceSuccess, setRequestClearanceSuccess] = useState<string | null>(null);
-  const [requestClearanceError, setRequestClearanceError] = useState<string | null>(null);
+  const switchMode = (m: AuthMode) => {
+    reset();
+    setMode(m);
+  };
 
-  const handleRequestClearanceSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRequestClearanceError(null);
-    setRequestClearanceSuccess(null);
-
-    if (!requestClearanceEmail.trim()) {
-      setRequestClearanceError('Please enter your registered institutional email.');
-      return;
-    }
-
-    setIsRequestingClearance(true);
+  // ── Google OAuth ──────────────────────────────────────────────
+  const handleGoogleSignIn = async () => {
+    setErrorMsg(null);
+    setIsGoogleLoading(true);
     try {
-      const res = await supabaseService.requestClearanceCode(requestClearanceEmail.trim());
-      setRequestClearanceSuccess(res.message || 'Clearance code successfully dispatched to your email.');
+      await signInWithGoogle();
+      // Supabase will redirect; nothing more needed here
     } catch (err: any) {
-      setRequestClearanceError(err?.message || 'Failed to dispatch clearance code.');
-    } finally {
-      setIsRequestingClearance(false);
+      setErrorMsg(err?.message || 'Google sign-in failed. Please try again.');
+      setIsGoogleLoading(false);
     }
   };
 
-  const handleSignUpSubmit = async (e: React.FormEvent) => {
+  // ── Email Sign Up ─────────────────────────────────────────────
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setSuccessMsg(null);
 
-    if (!fullName.trim() || !email.trim()) {
-      setErrorMsg('Please enter your full name and institutional email.');
+    if (!fullName.trim()) {
+      setErrorMsg('Please enter your full name.');
       return;
     }
-
-    if (!phoneNumber.trim()) {
-      setErrorMsg('Please enter a contact phone number for beta clearance.');
+    if (!email.trim()) {
+      setErrorMsg('Please enter your email address.');
+      return;
+    }
+    if (password.length < 8) {
+      setErrorMsg('Password must be at least 8 characters.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMsg('Passwords do not match.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const res = await initiateSignUp({
-        fullName: fullName.trim(),
-        email: email.trim(),
-        phone: `${phonePrefix} ${phoneNumber.trim()}`,
-        institution: institution.trim() || 'Institutional Research Desk',
-        role: selectedRole
-      });
-
-      setPendingEmail(email.trim());
-      setPendingRole(selectedRole);
-      setTwoFactorCode('');
-      setMode('2fa');
+      await signUpWithEmail(email.trim(), password, fullName.trim());
+      setSuccessMsg(
+        'Account created! Check your email to confirm your address, then sign in.'
+      );
     } catch (err: any) {
-      setErrorMsg(err?.message || 'Failed to submit registration.');
+      setErrorMsg(err?.message || 'Registration failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleSignInSubmit = async (e: React.FormEvent) => {
+  // ── Email Sign In ─────────────────────────────────────────────
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setSuccessMsg(null);
 
-    if (!signInEmail.trim()) {
-      setErrorMsg('Please enter your registered institutional email.');
-      return;
-    }
-
-    if (!signInPassword.trim()) {
-      setErrorMsg('Please enter your clearance code or password.');
+    if (!email.trim() || !password) {
+      setErrorMsg('Please enter your email and password.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await initiateSignIn(signInEmail.trim(), signInPassword.trim());
-      setPendingEmail(signInEmail.trim());
-      setTwoFactorCode('');
-      setMode('2fa');
+      await signInWithEmail(email.trim(), password);
+      onNavigate('home');
     } catch (err: any) {
-      setErrorMsg(err?.message || 'Failed to sign in.');
+      setErrorMsg(err?.message || 'Invalid email or password.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDemoSignIn = async (role: BetaRole) => {
-    setIsSubmitting(true);
-    setErrorMsg(null);
-    const demoEmail = role === 'quant-researcher' ? 'a.vance@blackrock-alpha.com' : 'm.chen@citadel-fx.com';
-    try {
-      try {
-        await initiateSignIn(demoEmail, 'DEMO-CLEARANCE');
-      } catch {
-        await initiateSignUp({
-          fullName: role === 'quant-researcher' ? 'Alex Vance' : 'Marcus Chen',
-          email: demoEmail,
-          phone: '+1 (212) 810-5300',
-          institution: role === 'quant-researcher' ? 'BlackRock Systematic Macro Desk' : 'Citadel Fixed Income & Currencies',
-          role: role
-        });
-      }
-      setPendingEmail(demoEmail);
-      setTwoFactorCode('');
-      setMode('2fa');
-    } catch (err: any) {
-      setErrorMsg(err?.message || 'Demo sign in failed.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleTwoFactorSubmit = async (e: React.FormEvent) => {
+  // ── Forgot Password ───────────────────────────────────────────
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setSuccessMsg(null);
 
-    if (!twoFactorCode || twoFactorCode.trim().length !== 6) {
-      setErrorMsg('Please enter the complete 6-digit verification code.');
+    if (!email.trim()) {
+      setErrorMsg('Please enter your email address.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await verifyTwoFactor(pendingEmail, twoFactorCode.trim());
-      setTimeout(() => {
-        onNavigate('beta-dashboard');
-      }, 400);
+      await sendPasswordReset(email.trim());
+      setSuccessMsg(
+        'Password reset link sent! Check your inbox (and spam folder) and follow the link to reset your password.'
+      );
     } catch (err: any) {
-      setErrorMsg(err?.message || 'Invalid or expired 2-step verification code.');
+      setErrorMsg(err?.message || 'Failed to send reset email. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleResendCode = async () => {
-    if (!pendingEmail) return;
-    setIsResending(true);
-    setErrorMsg(null);
-    try {
-      await resendTwoFactor(pendingEmail);
-    } catch (err: any) {
-      setErrorMsg(err?.message || 'Could not resend verification code.');
-    } finally {
-      setIsResending(false);
-    }
+  const titles: Record<AuthMode, string> = {
+    signin: 'Sign In',
+    signup: 'Create Account',
+    forgot: 'Reset Password',
+  };
+
+  const subtitles: Record<AuthMode, string> = {
+    signin: 'Sign in to your Veiron account.',
+    signup: 'Create your Veiron account to get started.',
+    forgot: 'Enter your email and we\'ll send you a secure reset link.',
   };
 
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-[#141413] py-12 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-[#E3E0D8]">
-      <div className="max-w-4xl mx-auto space-y-10">
-        {/* Header Branding */}
-        <div className="text-center space-y-4 max-w-xl mx-auto">
-          <div className="flex justify-center items-center gap-3">
+      <div className="max-w-md mx-auto space-y-8">
+
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
             <VeironLogo size={36} showText={true} textColor="text-[#141413]" />
           </div>
-
-          <div className="space-y-1">
-            <div className="font-mono text-xs uppercase tracking-widest text-[#E5182B] font-semibold">
-              INSTITUTIONAL ACCESS PORTAL · COHORT 01
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-serif text-[#141413] tracking-tight">
-              {mode === '2fa' 
-                ? '2-Step Security Verification' 
-                : mode === 'signup' 
-                  ? 'Beta Testing Registration' 
-                  : 'Institutional Sign In'}
+          <div className="space-y-1.5">
+            <h1 className="text-3xl sm:text-4xl font-serif text-[#141413] tracking-tight">
+              {titles[mode]}
             </h1>
-            <p className="text-sm text-[#66645E]">
-              {mode === '2fa'
-                ? 'Enter the 6-digit confirmation code generated and validated by the Supabase edge authentication cluster.'
-                : mode === 'signup' 
-                  ? 'Register for early access to Veiron\'s Aakashavani financial world model and receive your role approval credentials.'
-                  : 'Sign in with your authorized institutional email or active clearance code.'}
-            </p>
+            <p className="text-sm text-[#66645E]">{subtitles[mode]}</p>
           </div>
         </div>
 
-        {/* Mode Switcher Tabs */}
-        <div className="flex justify-center">
-          {mode === '2fa' ? (
-            <div className="bg-[#EAE6DD] p-1 rounded-full border border-[#D5D0C5] flex items-center">
-              <div className="px-5 py-2 rounded-full text-xs font-semibold bg-[#141413] text-white shadow-md flex items-center gap-2">
-                <Lock size={13} className="text-[#E5182B]" />
-                <span>Supabase 2-Step Verification</span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-[#EAE6DD] p-1 rounded-full border border-[#D5D0C5] flex items-center">
+        {/* Mode Tabs (not shown for forgot mode) */}
+        {mode !== 'forgot' && (
+          <div className="flex justify-center">
+            <div className="bg-[#EAE6DD] p-1 rounded-full border border-[#D5D0C5] flex items-center gap-0.5">
               <button
-                onClick={() => { setMode('signup'); setErrorMsg(null); }}
-                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  mode === 'signup'
-                    ? 'bg-[#141413] text-white shadow-md'
-                    : 'text-[#66645E] hover:text-[#141413]'
-                }`}
-              >
-                Opt-In / Register for Beta
-              </button>
-              <button
-                onClick={() => { setMode('signin'); setErrorMsg(null); }}
+                onClick={() => switchMode('signin')}
                 className={`px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   mode === 'signin'
                     ? 'bg-[#141413] text-white shadow-md'
                     : 'text-[#66645E] hover:text-[#141413]'
                 }`}
               >
-                Institutional Sign In
+                Sign In
+              </button>
+              <button
+                onClick={() => switchMode('signup')}
+                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  mode === 'signup'
+                    ? 'bg-[#141413] text-white shadow-md'
+                    : 'text-[#66645E] hover:text-[#141413]'
+                }`}
+              >
+                Create Account
               </button>
             </div>
-          )}
-        </div>
-
-        {/* Error Notice */}
-        {errorMsg && (
-          <div className="max-w-2xl mx-auto p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs font-mono flex items-center gap-2">
-            <Lock size={14} className="shrink-0 text-red-600" />
-            <span>{errorMsg}</span>
           </div>
         )}
 
-        {/* Main Card Container */}
-        <div className="max-w-2xl mx-auto bg-white border-2 border-[#141413] shadow-xl p-6 sm:p-10 space-y-8">
-          {mode === '2fa' ? (
-            /* ================= 2-STEP VERIFICATION FORM ================= */
-            <form onSubmit={handleTwoFactorSubmit} className="space-y-6">
-              <div className="space-y-2 text-center pb-4 border-b border-[#F0EEE6]">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-mono font-medium">
-                  <Lock size={12} className="text-amber-600" />
-                  <span>SUPABASE TWO-FACTOR PROTOCOL (2FA)</span>
-                </div>
-                <h3 className="text-xl font-serif font-bold text-[#141413]">
-                  Enter 6-Digit Confirmation Code
-                </h3>
-                <p className="text-xs text-[#66645E]">
-                  Dispatched to institutional account: <strong className="text-[#141413] font-mono">{pendingEmail}</strong>
-                </p>
-              </div>
+        {/* Error / Success notices */}
+        {errorMsg && (
+          <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2">
+            <AlertCircle size={14} className="shrink-0 mt-0.5 text-red-600" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+        {successMsg && (
+          <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs flex items-start gap-2.5">
+            <CheckCircle2 size={14} className="shrink-0 mt-0.5 text-emerald-600" />
+            <span>{successMsg}</span>
+          </div>
+        )}
 
-              {/* Dispatched Code Notice */}
-              <div className="p-4 bg-emerald-50/70 border border-emerald-300 rounded-sm flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
-                  <Mail size={16} />
-                </div>
-                <div className="space-y-1">
-                  <div className="text-xs font-semibold text-emerald-950 flex items-center gap-1.5">
-                    <span>Confirmation Code Dispatched to Email</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  </div>
-                  <p className="text-[12px] text-emerald-800 leading-relaxed">
-                    A secure 6-digit confirmation code has been emailed to <strong className="text-emerald-950 font-mono">{pendingEmail}</strong>. Please check your Gmail or institutional inbox (including Spam/Updates) and enter the code below.
-                  </p>
-                </div>
-              </div>
+        {/* Card */}
+        <div className="bg-white border-2 border-[#141413] shadow-xl p-6 sm:p-8 space-y-6">
 
-              {/* 6-Digit PIN input */}
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-center text-[#141413]">
-                  6-DIGIT VERIFICATION CODE
+          {mode === 'forgot' ? (
+            /* ── FORGOT PASSWORD ── */
+            <form onSubmit={handleForgotPassword} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#141413]">
+                  Email Address
                 </label>
-                <input
-                  type="text"
-                  maxLength={6}
-                  value={twoFactorCode}
-                  onChange={(e) => setTwoFactorCode(e.target.value.replace(/[^0-9]/g, ''))}
-                  placeholder="------"
-                  autoFocus
-                  className="w-full text-center font-mono text-3xl tracking-[0.4em] py-3.5 bg-[#FAF8F5] border-2 border-[#141413] text-[#141413] focus:outline-none focus:ring-2 focus:ring-[#E5182B]/20"
-                />
-                <div className="flex items-center justify-between text-xs font-mono text-[#87857F] pt-1">
-                  <span>EXPIRES IN 10 MINUTES</span>
-                  <button
-                    type="button"
-                    onClick={handleResendCode}
-                    disabled={isResending}
-                    className="text-[#E5182B] hover:underline cursor-pointer disabled:opacity-50 flex items-center gap-1"
-                  >
-                    <RefreshCw size={11} className={isResending ? 'animate-spin' : ''} />
-                    <span>{isResending ? 'Resending...' : 'Resend Code'}</span>
-                  </button>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
+                    <Mail size={14} />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    autoFocus
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
+                  />
                 </div>
               </div>
 
-              {/* Institutional Manual Approval Policy Notice */}
-              <div className="p-3.5 bg-[#F7F5F0] border border-[#E3E0D8] text-[11px] text-[#66645E] space-y-1">
-                <div className="font-semibold text-[#141413] flex items-center gap-1.5">
-                  <AlertCircle size={13} className="text-[#E5182B]" />
-                  <span>Institutional Clearance & Manual Approval Policy</span>
-                </div>
-                <p>
-                  Upon 2FA verification, your account is authenticated with status <strong className="font-mono text-[#141413]">PENDING</strong>. Access to live simulation desks will remain locked until manually reviewed and approved by the administrator in the Supabase Table Editor.
-                </p>
-              </div>
-
-              {/* Verify & Complete Button */}
               <button
                 type="submit"
-                disabled={isSubmitting || twoFactorCode.trim().length !== 6}
-                className="w-full py-4 px-6 bg-[#E5182B] hover:bg-[#FF2A3D] disabled:opacity-50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                disabled={isSubmitting}
+                className="w-full py-3.5 px-6 bg-[#E5182B] hover:bg-[#FF2A3D] disabled:opacity-50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isSubmitting ? (
-                  <span>VERIFYING WITH SUPABASE...</span>
+                  <><RefreshCw size={15} className="animate-spin" /><span>Sending...</span></>
                 ) : (
-                  <>
-                    <ShieldCheck size={18} />
-                    <span>Verify Code & Complete Clearance</span>
-                    <ArrowRight size={16} />
-                  </>
+                  <><span>Send Reset Link</span><ArrowRight size={15} /></>
                 )}
               </button>
 
-              <div className="text-center pt-2">
+              <div className="text-center">
                 <button
                   type="button"
-                  onClick={() => { setMode('signin'); setTwoFactorCode(''); setErrorMsg(null); }}
-                  className="text-xs text-[#87857F] hover:text-[#141413] font-mono cursor-pointer"
+                  onClick={() => switchMode('signin')}
+                  className="text-xs text-[#87857F] hover:text-[#141413] font-mono cursor-pointer transition-colors"
                 >
-                  ← Cancel & Return to Sign In
+                  ← Back to Sign In
                 </button>
               </div>
             </form>
+
           ) : mode === 'signup' ? (
-            /* ================= SIGN UP FORM ================= */
-            <form onSubmit={handleSignUpSubmit} className="space-y-6">
-              {/* Identity & Contact Section */}
-              <div className="space-y-4">
-                <div className="text-xs font-mono text-[#87857F] uppercase tracking-wider pb-2 border-b border-[#F0EEE6]">
-                  1. APPLICANT DETAILS
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Full Name */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#141413]">
-                      Full Name <span className="text-[#E5182B]">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
-                        <UserIcon size={15} />
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="e.g. Dr. Julian Mercer"
-                        className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Work Email */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#141413]">
-                      Institutional Email <span className="text-[#E5182B]">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
-                        <Mail size={15} />
-                      </div>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="e.g. jmercer@fund-alpha.com"
-                        className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Phone Number with Prefix */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#141413]">
-                      Phone Number <span className="text-[#E5182B]">*</span>
-                    </label>
-                    <div className="flex gap-2">
-                      <select
-                        value={phonePrefix}
-                        onChange={(e) => setPhonePrefix(e.target.value)}
-                        className="px-2 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] shrink-0"
-                      >
-                        <option value="+1">+1 (US/CA)</option>
-                        <option value="+44">+44 (UK)</option>
-                        <option value="+91">+91 (IN)</option>
-                        <option value="+81">+81 (JP)</option>
-                        <option value="+41">+41 (CH)</option>
-                        <option value="+65">+65 (SG)</option>
-                        <option value="+49">+49 (DE)</option>
-                      </select>
-                      <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
-                          <Phone size={14} />
-                        </div>
-                        <input
-                          type="tel"
-                          required
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          placeholder="212-555-0199"
-                          className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Institution / Firm Name */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#141413]">
-                      Firm / Institution Name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
-                        <Building2 size={15} />
-                      </div>
-                      <input
-                        type="text"
-                        value={institution}
-                        onChange={(e) => setInstitution(e.target.value)}
-                        placeholder="e.g. Citadel / Millennium / Bridgewater"
-                        className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Beta Tester Role Selection */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between pb-2 border-b border-[#F0EEE6]">
-                  <span className="text-xs font-mono text-[#87857F] uppercase tracking-wider">
-                    2. SELECT BETA TESTER ROLE & CLEARANCE TIER
-                  </span>
-                  <span className="text-[11px] font-mono text-[#E5182B] font-semibold">
-                    MANUAL APPROVAL IN SUPABASE REQUIRED
-                  </span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {BETA_ROLES.map((role) => {
-                    const isSelected = selectedRole === role.id;
-
-                    return (
-                      <div
-                        key={role.id}
-                        onClick={() => setSelectedRole(role.id)}
-                        className={`p-3.5 border transition-all cursor-pointer text-left ${
-                          isSelected
-                            ? 'border-[#141413] bg-[#FAF8F5] ring-1 ring-[#141413]'
-                            : 'border-[#E3E0D8] hover:border-[#141413]/50 bg-white'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs sm:text-sm font-serif font-bold text-[#141413]">
-                                {role.title}
-                              </span>
-                              <span className="px-1.5 py-0.5 bg-[#E5182B]/10 text-[#E5182B] text-[10px] font-mono font-semibold">
-                                {role.badge}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-[#66645E] leading-relaxed">
-                              {role.description}
-                            </p>
-                          </div>
-
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
-                            isSelected ? 'border-[#E5182B] bg-[#E5182B]' : 'border-[#C5C2BA]'
-                          }`}>
-                            {isSelected && <Check size={11} className="text-white" />}
-                          </div>
-                        </div>
-
-                        {isSelected && (
-                          <div className="mt-3 pt-2.5 border-t border-[#E3E0D8] text-[10px] font-mono text-[#4F4D47] grid grid-cols-1 sm:grid-cols-2 gap-1">
-                            {role.permissions.map((p, idx) => (
-                              <div key={idx} className="flex items-center gap-1.5 text-[#141413]">
-                                <span className="text-[#E5182B]">✓</span>
-                                <span className="truncate">{p}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Terms Checkbox */}
-              <div className="pt-2">
-                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#474540]">
-                  <input
-                    type="checkbox"
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-0.5 accent-[#E5182B] cursor-pointer"
-                  />
-                  <span>
-                    I confirm that I am registering on behalf of an institutional research, trading, or model governance desk and agree to the Veiron Institutional Non-Disclosure and Beta Evaluation Terms.
-                  </span>
-                </label>
-              </div>
-
-              {/* Submit CTA */}
+            /* ── SIGN UP ── */
+            <div className="space-y-5">
+              {/* Google Sign Up */}
               <button
-                type="submit"
-                disabled={isSubmitting || !agreedToTerms}
-                className="w-full py-4 px-6 bg-[#E5182B] hover:bg-[#FF2A3D] disabled:opacity-50 text-white font-semibold text-sm rounded-none transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isGoogleLoading}
+                className="w-full py-3 px-4 bg-white hover:bg-[#F7F5F0] border-2 border-[#E3E0D8] hover:border-[#141413] text-[#141413] font-semibold text-sm transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-60"
               >
-                {isSubmitting ? (
-                  <span>DISPATCHING 2FA CODE...</span>
+                {isGoogleLoading ? (
+                  <><RefreshCw size={15} className="animate-spin" /><span>Redirecting...</span></>
                 ) : (
-                  <>
-                    <ShieldCheck size={18} />
-                    <span>Proceed to 2-Step Verification</span>
-                    <ArrowRight size={16} />
-                  </>
+                  <><GoogleIcon /><span>Continue with Google</span></>
                 )}
               </button>
-            </form>
-          ) : (
-            /* ================= SIGN IN FORM ================= */
-            <form onSubmit={handleSignInSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div className="text-xs font-mono text-[#87857F] uppercase tracking-wider pb-2 border-b border-[#F0EEE6]">
-                  INSTITUTIONAL CREDENTIALS
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-[1px] bg-[#E3E0D8]" />
+                <span className="text-[11px] font-mono text-[#87857F]">OR</span>
+                <div className="flex-1 h-[1px] bg-[#E3E0D8]" />
+              </div>
+
+              {/* Email Sign Up Form */}
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#141413]">
+                    Full Name <span className="text-[#E5182B]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Your full name"
+                    className="w-full px-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
+                  />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-[#141413]">
-                    Institutional Email Address
+                    Email Address <span className="text-[#E5182B]">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
-                      <Mail size={15} />
+                      <Mail size={14} />
                     </div>
                     <input
                       type="email"
                       required
-                      value={signInEmail}
-                      onChange={(e) => setSignInEmail(e.target.value)}
-                      placeholder="e.g. analyst@institution.com"
-                      className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413]"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#141413]">
+                    Password <span className="text-[#E5182B]">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
+                      <Lock size={14} />
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="At least 8 characters"
+                      className="w-full pl-9 pr-9 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#87857F] hover:text-[#141413] cursor-pointer transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#141413]">
+                    Confirm Password <span className="text-[#E5182B]">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
+                      <Lock size={14} />
+                    </div>
+                    <input
+                      type={showConfirm ? 'text' : 'password'}
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Repeat your password"
+                      className="w-full pl-9 pr-9 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#87857F] hover:text-[#141413] cursor-pointer transition-colors"
+                    >
+                      {showConfirm ? <EyeOff size={13} /> : <Eye size={13} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 px-6 bg-[#E5182B] hover:bg-[#FF2A3D] disabled:opacity-50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <><RefreshCw size={15} className="animate-spin" /><span>Creating account...</span></>
+                  ) : (
+                    <><span>Create Account</span><ArrowRight size={15} /></>
+                  )}
+                </button>
+              </form>
+            </div>
+
+          ) : (
+            /* ── SIGN IN ── */
+            <div className="space-y-5">
+              {/* Google Sign In */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isGoogleLoading}
+                className="w-full py-3 px-4 bg-white hover:bg-[#F7F5F0] border-2 border-[#E3E0D8] hover:border-[#141413] text-[#141413] font-semibold text-sm transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-60"
+              >
+                {isGoogleLoading ? (
+                  <><RefreshCw size={15} className="animate-spin" /><span>Redirecting...</span></>
+                ) : (
+                  <><GoogleIcon /><span>Continue with Google</span></>
+                )}
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-[1px] bg-[#E3E0D8]" />
+                <span className="text-[11px] font-mono text-[#87857F]">OR</span>
+                <div className="flex-1 h-[1px] bg-[#E3E0D8]" />
+              </div>
+
+              {/* Email Sign In Form */}
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#141413]">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
+                      <Mail size={14} />
+                    </div>
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
                     />
                   </div>
                 </div>
@@ -616,194 +452,59 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
                     <label className="block text-xs font-semibold text-[#141413]">
-                      Clearance Code / Password
+                      Password
                     </label>
-                    <span className="text-[10px] font-mono text-[#E5182B] font-semibold">REQUIRED FOR INSTITUTIONAL ACCESS</span>
+                    <button
+                      type="button"
+                      onClick={() => switchMode('forgot')}
+                      className="text-[11px] text-[#E5182B] hover:underline cursor-pointer font-mono font-semibold"
+                    >
+                      Forgot password?
+                    </button>
                   </div>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
-                      <Lock size={15} />
+                      <Lock size={14} />
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       required
-                      value={signInPassword}
-                      onChange={(e) => setSignInPassword(e.target.value)}
-                      placeholder="e.g. AKHVNI-AUTH-XXXX-XXX or password"
-                      className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413]"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Your password"
+                      className="w-full pl-9 pr-9 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413] transition-colors"
                     />
-                  </div>
-
-                  {/* Request Clearance Trigger */}
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-[11px] text-[#66645E]">Forgot or need your clearance credential?</span>
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsRequestClearanceOpen(true);
-                        setRequestClearanceEmail(signInEmail || '');
-                        setRequestClearanceError(null);
-                        setRequestClearanceSuccess(null);
-                      }}
-                      className="text-xs font-mono font-semibold text-[#E5182B] hover:underline flex items-center gap-1 cursor-pointer"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#87857F] hover:text-[#141413] cursor-pointer transition-colors"
                     >
-                      <Key size={12} />
-                      <span>Request Clearance Code</span>
+                      {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
                     </button>
                   </div>
                 </div>
-              </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3.5 px-6 bg-[#141413] hover:bg-[#2B2A28] text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-              >
-                {isSubmitting ? (
-                  <span>DISPATCHING 2FA CODE...</span>
-                ) : (
-                  <>
-                    <span>Proceed to 2-Step Verification</span>
-                    <ArrowRight size={15} />
-                  </>
-                )}
-              </button>
-
-              {/* Instant 1-Click Demo Testing Logins */}
-              <div className="pt-4 border-t border-[#E3E0D8] space-y-2">
-                <div className="text-[11px] font-mono text-[#87857F] uppercase tracking-wider text-center">
-                  OR INSTANT 1-CLICK DEMO AUTHENTICATION
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => handleDemoSignIn('quant-researcher')}
-                    className="p-2.5 bg-[#FAF8F5] hover:bg-[#F0EEE6] border border-[#E3E0D8] text-left transition-colors cursor-pointer"
-                  >
-                    <div className="font-semibold text-[#141413]">Sign in as Quant Auditor</div>
-                    <div className="text-[10px] font-mono text-[#87857F]">QUANT-AUDITOR-LV1</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleDemoSignIn('fx-rates-trader')}
-                    className="p-2.5 bg-[#FAF8F5] hover:bg-[#F0EEE6] border border-[#E3E0D8] text-left transition-colors cursor-pointer"
-                  >
-                    <div className="font-semibold text-[#141413]">Sign in as FX Trader</div>
-                    <div className="text-[10px] font-mono text-[#87857F]">FX-RATES-EXEC-LV1</div>
-                  </button>
-                </div>
-              </div>
-            </form>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 px-6 bg-[#141413] hover:bg-[#2B2A28] disabled:opacity-50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <><RefreshCw size={15} className="animate-spin" /><span>Signing in...</span></>
+                  ) : (
+                    <><span>Sign In</span><ArrowRight size={15} /></>
+                  )}
+                </button>
+              </form>
+            </div>
           )}
         </div>
 
-        {/* Security & Verification Footer */}
-        <div className="text-center font-mono text-xs text-[#87857F] space-y-1">
-          <div>VEIRON RECURSIVE ARCHITECTURE · SECURITY TIERS AUDITED UNDER NIST & ISO 27001</div>
-          <div className="text-[#B5B2A8]">Instance: AKHVNI-0.1.2-BETA-SECURED</div>
+        {/* Footer */}
+        <div className="text-center font-mono text-xs text-[#B5B2A8]">
+          VEIRON · Secured by Supabase Auth
         </div>
       </div>
-
-      {/* Request Clearance Code Modal */}
-      {isRequestClearanceOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="max-w-md w-full bg-white border-2 border-[#141413] shadow-2xl p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-150">
-            <div className="flex items-start justify-between border-b border-[#F0EEE6] pb-3">
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-[#E5182B] uppercase tracking-wider">
-                  <Key size={12} />
-                  <span>CREDENTIAL RETRIEVAL DISPATCH</span>
-                </div>
-                <h3 className="text-lg font-serif font-bold text-[#141413]">
-                  Request Clearance Code
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsRequestClearanceOpen(false)}
-                className="text-[#87857F] hover:text-[#141413] p-1 cursor-pointer transition-colors"
-                title="Close Modal"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <p className="text-xs text-[#66645E] leading-relaxed">
-              Enter your registered institutional email address. If an account is found in the Veiron database, your official clearance code and access credentials will be immediately dispatched to your inbox.
-            </p>
-
-            {/* Rate limit badge */}
-            <div className="p-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-[11px] font-mono text-[#4F4D47] flex items-center gap-2">
-              <Clock size={13} className="text-amber-600 shrink-0" />
-              <span>Rate Limit: Max 2 clearance code requests per 1 hour window.</span>
-            </div>
-
-            {requestClearanceError && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-mono flex items-start gap-2">
-                <AlertCircle size={14} className="shrink-0 mt-0.5 text-red-600" />
-                <span>{requestClearanceError}</span>
-              </div>
-            )}
-
-            {requestClearanceSuccess && (
-              <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs flex items-start gap-2.5">
-                <CheckCircle2 size={16} className="shrink-0 text-emerald-600 mt-0.5" />
-                <div>
-                  <span className="font-semibold block">Clearance Code Dispatched!</span>
-                  <span className="text-[11px] text-emerald-800 leading-relaxed block mt-0.5">
-                    {requestClearanceSuccess}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            <form onSubmit={handleRequestClearanceSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#141413]">
-                  Registered Institutional Email
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#87857F]">
-                    <Mail size={15} />
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    value={requestClearanceEmail}
-                    onChange={(e) => setRequestClearanceEmail(e.target.value)}
-                    placeholder="e.g. analyst@institution.com"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#FAF8F5] border border-[#E3E0D8] text-xs text-[#141413] focus:outline-none focus:border-[#141413]"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#F0EEE6]">
-                <button
-                  type="button"
-                  onClick={() => setIsRequestClearanceOpen(false)}
-                  className="px-4 py-2 text-xs font-mono text-[#66645E] hover:text-[#141413] border border-[#E3E0D8] cursor-pointer hover:bg-[#FAF8F5] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isRequestingClearance}
-                  className="px-5 py-2 bg-[#E5182B] hover:bg-[#FF2A3D] text-white text-xs font-semibold rounded-none transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  {isRequestingClearance ? (
-                    <span>DISPATCHING...</span>
-                  ) : (
-                    <>
-                      <Send size={13} />
-                      <span>Send Clearance Code</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

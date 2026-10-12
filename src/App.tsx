@@ -11,6 +11,8 @@ import { InboxDrawer } from './components/InboxDrawer';
 import { AsciiLoader } from './components/AsciiLoader';
 import { HomePage } from './pages/HomePage';
 import { AakashavaniPage } from './pages/AakashavaniPage';
+import { ProductsPage } from './pages/ProductsPage';
+import { SwarmicComingSoonPage } from './pages/SwarmicComingSoonPage';
 import { ApproachPage } from './pages/ApproachPage';
 import { ApplicationsPage } from './pages/ApplicationsPage';
 import { AboutPage } from './pages/AboutPage';
@@ -39,6 +41,9 @@ function AppContent() {
     if (cleanPath === '/beta-testing-dashboard' || cleanPath === '/beta-dashboard' || cleanPath === '/beta') {
       return 'beta-dashboard';
     }
+    // Products
+    if (cleanPath === '/products') return 'products';
+    if (cleanPath === '/swarmic') return 'swarmic';
     // Support both /aakashavani and /akashavani routes
     if (cleanPath === '/aakashavani' || cleanPath === '/akashavani') return 'aakashavani';
     if (cleanPath === '/live' || cleanPath === '/preview' || cleanPath === '/preview-beta') return 'aakashavani';
@@ -55,6 +60,8 @@ function AppContent() {
     switch (page) {
       case 'beta-dashboard': return '/beta-testing-dashboard';
       case 'admin-ops': return '/veiron-ops-9x2f8b1a';
+      case 'products': return '/products';
+      case 'swarmic': return '/swarmic';
       case 'aakashavani': return '/aakashavani';
       case 'approach': return '/approach';
       case 'applications': return '/applications';
@@ -70,12 +77,14 @@ function AppContent() {
     switch (page) {
       case 'beta-dashboard': return 'Beta Testing Workspace — Aakashavani | VEIRON';
       case 'admin-ops': return 'Veiron Ops Control — Administration Terminal';
+      case 'products': return 'Products | VEIRON';
+      case 'swarmic': return 'Swarmic — Coming Soon | VEIRON';
       case 'aakashavani': return 'Aakashavani — Financial World Model | VEIRON';
       case 'approach': return 'The World-Model Approach | VEIRON';
       case 'applications': return 'Institutional Applications | VEIRON';
       case 'about': return 'Mission & Philosophy | VEIRON';
       case 'contact': return 'Contact & Briefing | VEIRON';
-      case 'auth': return 'Beta Access & Institutional Authentication | VEIRON';
+      case 'auth': return 'Sign In | VEIRON';
       case '404': return '404 — Recursive Manifold Collapse | VEIRON';
       default: return 'VEIRON — World Models for Institutions';
     }
@@ -163,6 +172,8 @@ function AppContent() {
       {/* Main Content Area */}
       <main className="flex-1">
         {currentPage === 'home' && <HomePage onNavigate={handleNavigate} />}
+        {currentPage === 'products' && <ProductsPage onNavigate={handleNavigate} />}
+        {currentPage === 'swarmic' && <SwarmicComingSoonPage onNavigate={handleNavigate} />}
         {currentPage === 'aakashavani' && <AakashavaniPage onNavigate={handleNavigate} />}
         {currentPage === 'beta-dashboard' && <BetaDashboardPage onNavigate={handleNavigate} />}
         {currentPage === 'admin-ops' && <AdminOpsDashboardPage onNavigate={handleNavigate} />}
