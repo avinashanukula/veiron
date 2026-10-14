@@ -10,6 +10,7 @@ export type Page =
   | 'about' 
   | 'contact'
   | 'auth'
+  | 'api-dashboard'
   | '404';
 
 export interface BetaReview {

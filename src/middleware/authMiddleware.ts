@@ -77,7 +77,8 @@ export const ROUTE_POLICIES: Record<Page, RoutePolicy> = {
   '404': {
     requiresAuth: false,
     friendlyName: 'Page Not Found'
-  }
+  },
+   'api-dashboard': { requiresAuth: true, friendlyName: 'API Dashboard' },
 };
 
 /**
