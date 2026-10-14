@@ -21,6 +21,7 @@ import { AuthPage } from './pages/AuthPage';
 import { BetaDashboardPage } from './pages/BetaDashboardPage';
 import { AdminOpsDashboardPage } from './pages/AdminOpsDashboardPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import ApiDashboard from './pages/ApiDashboard';
 
 function AppContent() {
   const { currentUser, addToast, launchLiveBeta } = useAuth();
@@ -52,6 +53,7 @@ function AppContent() {
     if (cleanPath === '/about') return 'about';
     if (cleanPath === '/contact') return 'contact';
     if (cleanPath === '/auth' || cleanPath === '/signin' || cleanPath === '/signup') return 'auth';
+       if (cleanPath === '/api' || cleanPath === '/api-dashboard') return 'api-dashboard';
     if (cleanPath === '/404' || cleanPath === '/not-found') return '404';
     return '404';
   };
@@ -68,6 +70,7 @@ function AppContent() {
       case 'about': return '/about';
       case 'contact': return '/contact';
       case 'auth': return '/auth';
+      case 'api-dashboard': return '/api';
       case '404': return '/404';
       default: return '/';
     }
@@ -85,6 +88,7 @@ function AppContent() {
       case 'about': return 'Mission & Philosophy | VEIRON';
       case 'contact': return 'Contact & Briefing | VEIRON';
       case 'auth': return 'Sign In | VEIRON';
+      case 'api-dashboard': return 'API Dashboard | VEIRON';
       case '404': return '404 — Recursive Manifold Collapse | VEIRON';
       default: return 'VEIRON — World Models for Institutions';
     }
@@ -182,6 +186,7 @@ function AppContent() {
         {currentPage === 'about' && <AboutPage onNavigate={handleNavigate} />}
         {currentPage === 'contact' && <ContactPage onNavigate={handleNavigate} />}
         {currentPage === 'auth' && <AuthPage onNavigate={handleNavigate} />}
+        {currentPage === 'api-dashboard' && (currentUser ? <ApiDashboard /> : <AuthPage onNavigate={handleNavigate} />)}
         {currentPage === '404' && <NotFoundPage onNavigate={handleNavigate} />}
       </main>
 
