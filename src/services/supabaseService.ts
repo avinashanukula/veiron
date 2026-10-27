@@ -9,9 +9,17 @@ const SUPABASE_ANON_KEY =
 
 /**
  * Supabase JS client — used only for Auth operations (Google OAuth, email/password, session).
- * The anon key is safe to expose in frontend code — it carries no elevated privileges.
+ * FlowType is configured to 'implicit' so OAuth tokens are returned directly in the URL hash,
+ * preventing server-side code-exchange failures when anon keys are restricted.
  */
-export const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    flowType: 'implicit',
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});
 
 const EDGE_MIDDLEWARE_ENDPOINT = `${SUPABASE_URL}/functions/v1/auth-middleware`;
 
@@ -472,6 +480,98 @@ class SupabaseService {
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) throw new Error(error.message);
     return data.session;
+  }
+
+  /**
+   * Decode JWT token payload safely without external dependencies.
+   */
+  decodeJwt(token: string): any {
+    try {
+      const parts = token.split('.');
+      if (parts.length < 2) return null;
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Handle OAuth redirect parameters from URL (both hash and query string).
+   * Parses access_token from hash or codes from search.
+   */
+  async handleOAuthRedirect(): Promise<{ user: User; sessionToken: string } | null> {
+    if (typeof window === 'undefined') return null;
+
+    // 1. Check hash for #access_token=... (implicit grant)
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash) {
+      const hashParams = new URLSearchParams(hash);
+      const accessToken = hashParams.get('access_token');
+      if (accessToken) {
+        const decoded = this.decodeJwt(accessToken);
+        if (decoded) {
+          const fullName =
+            decoded.user_metadata?.full_name ||
+            decoded.user_metadata?.name ||
+            decoded.email?.split('@')[0] ||
+            'Institutional User';
+          const user: User = {
+            id: decoded.sub || 'user_' + Date.now(),
+            fullName,
+            email: decoded.email || '',
+            phone: decoded.phone || '',
+            institution: decoded.user_metadata?.institution || 'Veiron Institutional Desk',
+            role: (decoded.user_metadata?.role as BetaRole) || 'quant-researcher',
+            approvalStatus: 'approved',
+            joinedAt: new Date().toLocaleDateString(),
+            clearanceCode: `AKHVNI-AUTH-${Math.floor(1000 + Math.random() * 9000)}-QNT`,
+            notificationsEnabled: true,
+            testerTier: 'Standard',
+          };
+          window.history.replaceState(null, '', window.location.pathname);
+          return { user, sessionToken: accessToken };
+        }
+      }
+    }
+
+    // 2. Check Supabase JS client getSession as fallback
+    try {
+      const session = await this.getSession();
+      if (session?.user && session?.access_token) {
+        const supaUser = session.user;
+        const fullName =
+          supaUser.user_metadata?.full_name ||
+          supaUser.user_metadata?.name ||
+          supaUser.email?.split('@')[0] ||
+          'Institutional User';
+        const user: User = {
+          id: supaUser.id,
+          fullName,
+          email: supaUser.email || '',
+          phone: supaUser.phone || '',
+          institution: supaUser.user_metadata?.institution || 'Veiron Institutional Desk',
+          role: (supaUser.user_metadata?.role as BetaRole) || 'quant-researcher',
+          approvalStatus: 'approved',
+          joinedAt: new Date(supaUser.created_at || Date.now()).toLocaleDateString(),
+          clearanceCode: `AKHVNI-AUTH-${Math.floor(1000 + Math.random() * 9000)}-QNT`,
+          notificationsEnabled: true,
+          testerTier: 'Standard',
+        };
+        return { user, sessionToken: session.access_token };
+      }
+    } catch {
+      // getSession might fail if anon key is not set
+    }
+
+    return null;
   }
 }
 

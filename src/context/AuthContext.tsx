@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, BetaRole, InboxMessage, Page } from '../types';
 import { getBetaRoleInfo } from '../data/betaRoles';
-import { supabaseService } from '../services/supabaseService';
+import { supabaseService, supabaseClient } from '../services/supabaseService';
 
 export const PROTOLOPP_LIVE_URL = 'https://protolopp-desktop-psi.vercel.app';
 
@@ -28,6 +28,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, fullName: string) => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
+  signInDemoUser: (role?: BetaRole) => void;
   // Legacy / Beta Auth (kept for BetaDashboard & Admin)
   signIn: (email: string, credential?: string) => Promise<boolean>;
   signUp: (data: {
@@ -147,16 +148,80 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem(STORAGE_KEY_NOTIFS, String(notificationsEnabled));
   }, [notificationsEnabled]);
 
-  // Prompt for notification permission on initial load if disabled
+  // Prompt for notification permission on initial load if disabled (skip on /auth to avoid blocking login)
   useEffect(() => {
     const isEnabled = localStorage.getItem(STORAGE_KEY_NOTIFS) === 'true';
-    if (!isEnabled) {
+    const isAuthPath = typeof window !== 'undefined' && window.location.pathname.toLowerCase().includes('/auth');
+    if (!isEnabled && !isAuthPath) {
       const timer = setTimeout(() => {
         setNotificationPromptOpen(true);
       }, 700);
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // Listen for Supabase OAuth callback & auth state changes
+  useEffect(() => {
+    let isMounted = true;
+
+    // 1. Process URL hash / query on initial mount (OAuth callback)
+    const handleOAuthCallback = async () => {
+      try {
+        const result = await supabaseService.handleOAuthRedirect();
+        if (result?.user && result?.sessionToken && isMounted) {
+          setCurrentUser(result.user);
+          setSessionToken(result.sessionToken);
+          addToast('Signed In with Google', `Welcome, ${result.user.fullName}!`, 'success');
+        }
+      } catch (err: any) {
+        console.warn('OAuth redirect handling notice:', err);
+      }
+    };
+
+    handleOAuthCallback();
+
+    // 2. Subscribe to Supabase client auth state changes
+    try {
+      const { data: authListener } = supabaseClient.auth.onAuthStateChange(
+        async (event, session) => {
+          if (!isMounted) return;
+          if (session?.user) {
+            const supaUser = session.user;
+            const fullName =
+              supaUser.user_metadata?.full_name ||
+              supaUser.user_metadata?.name ||
+              supaUser.email?.split('@')[0] ||
+              'Institutional User';
+            const mappedUser: User = {
+              id: supaUser.id,
+              fullName,
+              email: supaUser.email || '',
+              phone: supaUser.phone || '',
+              institution: supaUser.user_metadata?.institution || 'Veiron Institutional Desk',
+              role: (supaUser.user_metadata?.role as BetaRole) || 'quant-researcher',
+              approvalStatus: 'approved',
+              joinedAt: new Date(supaUser.created_at || Date.now()).toLocaleDateString(),
+              clearanceCode: `AKHVNI-OAUTH-${supaUser.id.substring(0, 4).toUpperCase()}`,
+              notificationsEnabled: true,
+              testerTier: 'Standard',
+            };
+            setCurrentUser(mappedUser);
+            setSessionToken(session.access_token);
+          } else if (event === 'SIGNED_OUT') {
+            setCurrentUser(null);
+            setSessionToken(null);
+          }
+        }
+      );
+
+      return () => {
+        isMounted = false;
+        authListener?.subscription?.unsubscribe();
+      };
+    } catch (e) {
+      console.warn('Supabase auth state listener subscription error:', e);
+    }
+  }, [addToast]);
 
   // Fetch messages from Supabase Edge Function
   const refreshMailbox = useCallback(async () => {
@@ -405,6 +470,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const signInDemoUser = (role: BetaRole = 'quant-researcher') => {
+    const isQuant = role === 'quant-researcher';
+    const demoUser: User = {
+      id: isQuant ? 'demo-quant-auditor' : 'demo-fx-trader',
+      fullName: isQuant ? 'Alex Vance' : 'Marcus Chen',
+      email: isQuant ? 'a.vance@blackrock-alpha.com' : 'm.chen@citadel-fx.com',
+      phone: '+1 (212) 810-5300',
+      institution: isQuant ? 'BlackRock Systematic Macro Desk' : 'Citadel Fixed Income & Currencies',
+      role,
+      approvalStatus: 'approved',
+      joinedAt: new Date().toLocaleDateString(),
+      clearanceCode: isQuant ? 'QUANT-AUDITOR-LV1' : 'FX-RATES-EXEC-LV1',
+      notificationsEnabled: true,
+      testerTier: 'TIER-1 EARLY ACCESS',
+    };
+    setCurrentUser(demoUser);
+    const token = `vtok_demo_${Date.now()}`;
+    setSessionToken(token);
+    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(demoUser));
+    localStorage.setItem(STORAGE_KEY_TOKEN, token);
+    addToast('Institutional Clearance Verified', `Welcome back, ${demoUser.fullName} [${demoUser.clearanceCode}].`, 'success');
+  };
+
   // Compatibility wrappers
   const signUp = async (data: {
     fullName: string;
@@ -578,6 +666,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         signInWithEmail,
         signUpWithEmail,
         sendPasswordReset,
+        signInDemoUser,
         // Legacy / Beta Auth
         signIn,
         signUp,

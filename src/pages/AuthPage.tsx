@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Page } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { VeironLogo } from '../components/logos/VeironLogo';
@@ -21,10 +21,10 @@ interface AuthPageProps {
 // Google icon SVG inline
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
   </svg>
 );
 
@@ -32,7 +32,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   onNavigate,
   initialMode = 'signin',
 }) => {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, sendPasswordReset } = useAuth();
+  const {
+    currentUser,
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+    sendPasswordReset,
+    signInDemoUser,
+  } = useAuth();
 
   type AuthMode = 'signin' | 'signup' | 'forgot';
   const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -62,6 +69,36 @@ export const AuthPage: React.FC<AuthPageProps> = ({
     reset();
     setMode(m);
   };
+
+  // ── Handle OAuth callback redirect & errors ──────────────────
+  useEffect(() => {
+    // If already authenticated, redirect immediately
+    if (currentUser) {
+      onNavigate('home');
+      return;
+    }
+
+    // Inspect URL search and hash for OAuth errors
+    const params = new URLSearchParams(window.location.search);
+    const hashClean = window.location.hash.replace(/^#/, '');
+    const hashParams = new URLSearchParams(hashClean);
+
+    const error = params.get('error') || hashParams.get('error');
+    const errorDesc = params.get('error_description') || hashParams.get('error_description');
+
+    if (error || errorDesc) {
+      const rawDesc = errorDesc ? decodeURIComponent(errorDesc.replace(/\+/g, ' ')) : error || 'Sign-in failed.';
+      if (rawDesc.includes('Unable to exchange external code')) {
+        setErrorMsg(
+          'Google Sign-In configuration error: Supabase was unable to verify the authorization code with Google. This occurs when the Google Client Secret in Supabase Dashboard (Authentication → Providers → Google) does not match Google Cloud Console, or if the OAuth Consent Screen test user list is missing your account.'
+        );
+      } else {
+        setErrorMsg(`Google sign-in error: ${rawDesc}`);
+      }
+      // Clean up URL so page refresh does not keep showing the error parameter
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, [currentUser, onNavigate]);
 
   // ── Google OAuth ──────────────────────────────────────────────
   const handleGoogleSignIn = async () => {
@@ -193,21 +230,19 @@ export const AuthPage: React.FC<AuthPageProps> = ({
             <div className="bg-[#EAE6DD] p-1 rounded-full border border-[#D5D0C5] flex items-center gap-0.5">
               <button
                 onClick={() => switchMode('signin')}
-                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  mode === 'signin'
+                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${mode === 'signin'
                     ? 'bg-[#141413] text-white shadow-md'
                     : 'text-[#66645E] hover:text-[#141413]'
-                }`}
+                  }`}
               >
                 Sign In
               </button>
               <button
                 onClick={() => switchMode('signup')}
-                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  mode === 'signup'
+                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${mode === 'signup'
                     ? 'bg-[#141413] text-white shadow-md'
                     : 'text-[#66645E] hover:text-[#141413]'
-                }`}
+                  }`}
               >
                 Create Account
               </button>
@@ -217,9 +252,54 @@ export const AuthPage: React.FC<AuthPageProps> = ({
 
         {/* Error / Success notices */}
         {errorMsg && (
-          <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2">
-            <AlertCircle size={14} className="shrink-0 mt-0.5 text-red-600" />
-            <span>{errorMsg}</span>
+          <div className="p-4 bg-red-50 border-2 border-red-300 text-red-800 text-xs space-y-3">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600" />
+              <div className="space-y-1">
+                <span className="font-semibold block text-red-900">Authentication Alert</span>
+                <span className="leading-relaxed block">{errorMsg}</span>
+              </div>
+            </div>
+
+            {errorMsg.includes('Google') && (
+              <div className="pt-2 border-t border-red-200/80 space-y-2">
+                <div className="text-[11px] font-mono text-red-900 font-semibold">
+                  INSTANT INSTITUTIONAL ACCESS:
+                </div>
+                <div className="text-[11px] text-red-700 leading-normal">
+                  You can immediately access the live platform using 1-Click Institutional Demo clearance below while verifying Google OAuth credentials in your Supabase Dashboard.
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signInDemoUser('quant-researcher');
+                      onNavigate('home');
+                    }}
+                    className="px-3 py-1.5 bg-[#141413] hover:bg-[#2B2A28] text-white text-[11px] font-semibold cursor-pointer transition-colors shadow-sm"
+                  >
+                    Enter as Quant Auditor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signInDemoUser('fx-rates-trader');
+                      onNavigate('home');
+                    }}
+                    className="px-3 py-1.5 bg-[#141413] hover:bg-[#2B2A28] text-white text-[11px] font-semibold cursor-pointer transition-colors shadow-sm"
+                  >
+                    Enter as FX Trader
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setErrorMsg(null)}
+                    className="px-3 py-1.5 bg-white border border-red-300 hover:bg-red-100 text-red-800 text-[11px] font-semibold cursor-pointer transition-colors"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
         {successMsg && (
@@ -496,6 +576,46 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                   )}
                 </button>
               </form>
+
+              {/* Instant 1-Click Institutional Access */}
+              <div className="pt-4 border-t border-[#E3E0D8] space-y-2.5">
+                <div className="text-[11px] font-mono text-[#87857F] uppercase tracking-wider text-center">
+                  Instant Institutional Access
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signInDemoUser('quant-researcher');
+                      onNavigate('home');
+                    }}
+                    className="p-2.5 bg-[#FAF8F5] hover:bg-[#F0EEE6] border border-[#E3E0D8] hover:border-[#141413] text-left transition-colors cursor-pointer group"
+                  >
+                    <div className="font-semibold text-[#141413] group-hover:text-[#E5182B] transition-colors">
+                      Quant Auditor Desk
+                    </div>
+                    <div className="text-[10px] font-mono text-[#87857F]">
+                      QUANT-AUDITOR-LV1
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signInDemoUser('fx-rates-trader');
+                      onNavigate('home');
+                    }}
+                    className="p-2.5 bg-[#FAF8F5] hover:bg-[#F0EEE6] border border-[#E3E0D8] hover:border-[#141413] text-left transition-colors cursor-pointer group"
+                  >
+                    <div className="font-semibold text-[#141413] group-hover:text-[#E5182B] transition-colors">
+                      FX Trader Clearance
+                    </div>
+                    <div className="text-[10px] font-mono text-[#87857F]">
+                      FX-RATES-EXEC-LV1
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
