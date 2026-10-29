@@ -186,6 +186,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         async (event, session) => {
           if (!isMounted) return;
           if (session?.user) {
+            supabaseService.cleanAuthParamsFromUrl();
             const supaUser = session.user;
             const fullName =
               supaUser.user_metadata?.full_name ||

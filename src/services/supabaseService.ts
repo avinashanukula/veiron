@@ -1,8 +1,11 @@
 import { User, BetaRole, InboxMessage, BetaReview, AdminUserRecord } from '../types';
 import { createClient } from '@supabase/supabase-js';
 
+const envSupabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_URL = 
-  import.meta.env.VITE_SUPABASE_URL || 'https://slfllzppphyhkpsjmupp.supabase.co';
+  (envSupabaseUrl && !envSupabaseUrl.includes('your-project') && !envSupabaseUrl.includes('placeholder'))
+    ? envSupabaseUrl
+    : 'https://slfllzppphyhkpsjmupp.supabase.co';
 
 const SUPABASE_ANON_KEY =
   import.meta.env.VITE_SUPABASE_ANON_KEY || 'dummy-anon-key';
@@ -504,68 +507,160 @@ class SupabaseService {
   }
 
   /**
+   * Helper to map a Supabase User entity to the application User model.
+   */
+  private mapSupabaseUser(supaUser: any, sessionToken: string): { user: User; sessionToken: string } {
+    const fullName =
+      supaUser.user_metadata?.full_name ||
+      supaUser.user_metadata?.name ||
+      supaUser.email?.split('@')[0] ||
+      'Institutional User';
+    const user: User = {
+      id: supaUser.id,
+      fullName,
+      email: supaUser.email || '',
+      phone: supaUser.phone || '',
+      institution: supaUser.user_metadata?.institution || 'Veiron Institutional Desk',
+      role: (supaUser.user_metadata?.role as BetaRole) || 'quant-researcher',
+      approvalStatus: 'approved',
+      joinedAt: new Date(supaUser.created_at || Date.now()).toLocaleDateString(),
+      clearanceCode: `AKHVNI-AUTH-${(supaUser.id || 'QNT').substring(0, 4).toUpperCase()}-LV1`,
+      notificationsEnabled: true,
+      testerTier: 'Standard',
+    };
+    return { user, sessionToken };
+  }
+
+  /**
+   * Sanitizes the browser URL by removing OAuth tokens, PKCE codes, and error parameters
+   * from both the query string and hash, preventing sensitive tokens from lingering in the address bar.
+   */
+  cleanAuthParamsFromUrl(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      const url = new URL(window.location.href);
+      const authQueryParams = [
+        'code',
+        'error',
+        'error_code',
+        'error_description',
+        'access_token',
+        'refresh_token',
+        'token_type',
+        'expires_in',
+        'expires_at',
+        'type',
+      ];
+      let searchChanged = false;
+      for (const param of authQueryParams) {
+        if (url.searchParams.has(param)) {
+          url.searchParams.delete(param);
+          searchChanged = true;
+        }
+      }
+
+      const hash = url.hash.replace(/^#/, '');
+      let hashChanged = false;
+      if (
+        hash.includes('access_token') ||
+        hash.includes('error') ||
+        hash.includes('refresh_token') ||
+        hash.includes('token_type')
+      ) {
+        url.hash = '';
+        hashChanged = true;
+      }
+
+      if (searchChanged || hashChanged) {
+        const cleanUrl = url.pathname + (url.search ? url.search : '') + (url.hash ? url.hash : '');
+        window.history.replaceState(null, '', cleanUrl);
+      }
+    } catch {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }
+
+  /**
    * Handle OAuth redirect parameters from URL (both hash and query string).
-   * Parses access_token from hash or codes from search.
+   * Parses access_token from hash or codes from search, exchanges them, and strips tokens from the URL.
    */
   async handleOAuthRedirect(): Promise<{ user: User; sessionToken: string } | null> {
     if (typeof window === 'undefined') return null;
 
-    // 1. Check hash for #access_token=... (implicit grant)
-    const hash = window.location.hash.replace(/^#/, '');
-    if (hash) {
-      const hashParams = new URLSearchParams(hash);
-      const accessToken = hashParams.get('access_token');
-      if (accessToken) {
-        const decoded = this.decodeJwt(accessToken);
-        if (decoded) {
-          const fullName =
-            decoded.user_metadata?.full_name ||
-            decoded.user_metadata?.name ||
-            decoded.email?.split('@')[0] ||
-            'Institutional User';
-          const user: User = {
-            id: decoded.sub || 'user_' + Date.now(),
-            fullName,
-            email: decoded.email || '',
-            phone: decoded.phone || '',
-            institution: decoded.user_metadata?.institution || 'Veiron Institutional Desk',
-            role: (decoded.user_metadata?.role as BetaRole) || 'quant-researcher',
-            approvalStatus: 'approved',
-            joinedAt: new Date().toLocaleDateString(),
-            clearanceCode: `AKHVNI-AUTH-${Math.floor(1000 + Math.random() * 9000)}-QNT`,
-            notificationsEnabled: true,
-            testerTier: 'Standard',
-          };
-          window.history.replaceState(null, '', window.location.pathname);
-          return { user, sessionToken: accessToken };
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashClean = window.location.hash.replace(/^#/, '');
+    const hashParams = new URLSearchParams(hashClean);
+
+    // 1. Check for OAuth errors in search or hash
+    const error = searchParams.get('error') || hashParams.get('error');
+    const errorDesc = searchParams.get('error_description') || hashParams.get('error_description');
+    if (error || errorDesc) {
+      this.cleanAuthParamsFromUrl();
+      console.warn('OAuth redirect error returned from provider:', error, errorDesc);
+      return null;
+    }
+
+    // 2. Check search for ?code=... (PKCE / Authorization Code grant)
+    const code = searchParams.get('code');
+    if (code) {
+      try {
+        const { data, error: exchangeError } = await supabaseClient.auth.exchangeCodeForSession(code);
+        this.cleanAuthParamsFromUrl();
+        if (!exchangeError && data.session?.user && data.session?.access_token) {
+          return this.mapSupabaseUser(data.session.user, data.session.access_token);
         }
+      } catch (err) {
+        console.warn('exchangeCodeForSession failed:', err);
+        this.cleanAuthParamsFromUrl();
       }
     }
 
-    // 2. Check Supabase JS client getSession as fallback
-    try {
-      const session = await this.getSession();
-      if (session?.user && session?.access_token) {
-        const supaUser = session.user;
+    // 3. Check hash for #access_token=... (implicit grant)
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+    if (accessToken) {
+      const decoded = this.decodeJwt(accessToken);
+      this.cleanAuthParamsFromUrl();
+
+      // Synchronize with Supabase JS client session if supported
+      try {
+        await supabaseClient.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        });
+      } catch {
+        // Non-blocking fallback
+      }
+
+      if (decoded) {
         const fullName =
-          supaUser.user_metadata?.full_name ||
-          supaUser.user_metadata?.name ||
-          supaUser.email?.split('@')[0] ||
+          decoded.user_metadata?.full_name ||
+          decoded.user_metadata?.name ||
+          decoded.email?.split('@')[0] ||
           'Institutional User';
         const user: User = {
-          id: supaUser.id,
+          id: decoded.sub || 'user_' + Date.now(),
           fullName,
-          email: supaUser.email || '',
-          phone: supaUser.phone || '',
-          institution: supaUser.user_metadata?.institution || 'Veiron Institutional Desk',
-          role: (supaUser.user_metadata?.role as BetaRole) || 'quant-researcher',
+          email: decoded.email || '',
+          phone: decoded.phone || '',
+          institution: decoded.user_metadata?.institution || 'Veiron Institutional Desk',
+          role: (decoded.user_metadata?.role as BetaRole) || 'quant-researcher',
           approvalStatus: 'approved',
-          joinedAt: new Date(supaUser.created_at || Date.now()).toLocaleDateString(),
+          joinedAt: new Date().toLocaleDateString(),
           clearanceCode: `AKHVNI-AUTH-${Math.floor(1000 + Math.random() * 9000)}-QNT`,
           notificationsEnabled: true,
           testerTier: 'Standard',
         };
-        return { user, sessionToken: session.access_token };
+        return { user, sessionToken: accessToken };
+      }
+    }
+
+    // 4. Check Supabase JS client getSession as fallback
+    try {
+      const session = await this.getSession();
+      if (session?.user && session?.access_token) {
+        this.cleanAuthParamsFromUrl();
+        return this.mapSupabaseUser(session.user, session.access_token);
       }
     } catch {
       // getSession might fail if anon key is not set

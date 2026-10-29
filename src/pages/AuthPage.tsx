@@ -72,9 +72,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({
 
   // ── Handle OAuth callback redirect & errors ──────────────────
   useEffect(() => {
-    // If already authenticated, redirect immediately
+    // If already authenticated, redirect immediately to the beta workspace dashboard
     if (currentUser) {
-      onNavigate('home');
+      onNavigate('beta-dashboard');
       return;
     }
 
@@ -163,7 +163,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
     setIsSubmitting(true);
     try {
       await signInWithEmail(email.trim(), password);
-      onNavigate('home');
+      onNavigate('beta-dashboard');
     } catch (err: any) {
       setErrorMsg(err?.message || 'Invalid email or password.');
     } finally {
@@ -274,7 +274,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     type="button"
                     onClick={() => {
                       signInDemoUser('quant-researcher');
-                      onNavigate('home');
+                      onNavigate('beta-dashboard');
                     }}
                     className="px-3 py-1.5 bg-[#141413] hover:bg-[#2B2A28] text-white text-[11px] font-semibold cursor-pointer transition-colors shadow-sm"
                   >
@@ -284,7 +284,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     type="button"
                     onClick={() => {
                       signInDemoUser('fx-rates-trader');
-                      onNavigate('home');
+                      onNavigate('beta-dashboard');
                     }}
                     className="px-3 py-1.5 bg-[#141413] hover:bg-[#2B2A28] text-white text-[11px] font-semibold cursor-pointer transition-colors shadow-sm"
                   >
@@ -587,7 +587,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     type="button"
                     onClick={() => {
                       signInDemoUser('quant-researcher');
-                      onNavigate('home');
+                      onNavigate('beta-dashboard');
                     }}
                     className="p-2.5 bg-[#FAF8F5] hover:bg-[#F0EEE6] border border-[#E3E0D8] hover:border-[#141413] text-left transition-colors cursor-pointer group"
                   >
@@ -603,7 +603,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     type="button"
                     onClick={() => {
                       signInDemoUser('fx-rates-trader');
-                      onNavigate('home');
+                      onNavigate('beta-dashboard');
                     }}
                     className="p-2.5 bg-[#FAF8F5] hover:bg-[#F0EEE6] border border-[#E3E0D8] hover:border-[#141413] text-left transition-colors cursor-pointer group"
                   >

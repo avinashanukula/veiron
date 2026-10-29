@@ -96,6 +96,19 @@ function AppContent() {
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [transitionLabel, setTransitionLabel] = useState<string>('SYNCHRONIZING WORLD MODEL...');
 
+  // Detect whether current session landed from an incoming OAuth redirect (hash or code)
+  const [hasIncomingOAuth] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+    return (
+      hash.includes('access_token=') ||
+      hash.includes('error=') ||
+      search.includes('code=') ||
+      search.includes('error=')
+    );
+  });
+
   useEffect(() => {
     const cleanPath = window.location.pathname.toLowerCase().replace(/\/$/, '') || '/';
     if (cleanPath === '/live' || cleanPath === '/preview' || cleanPath === '/preview-beta') {
@@ -114,6 +127,13 @@ function AppContent() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // When OAuth authentication completes, automatically route user to Beta Workspace dashboard
+  useEffect(() => {
+    if (hasIncomingOAuth && currentUser) {
+      handleNavigate('beta-dashboard');
+    }
+  }, [hasIncomingOAuth, currentUser]);
 
   const handleNavigate = (page: Page) => {
     // Run Authentication & Authorization Middleware
