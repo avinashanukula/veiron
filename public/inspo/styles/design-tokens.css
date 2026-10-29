@@ -1,0 +1,24 @@
+/**
+ * Sigil Design Tokens
+ * Extracted from https://sigil.framer.ai/
+ */
+:root {
+  --token-3b27429e-42d0-4067-9918-f4d89b9e72fd: #f4f4f1;
+  --token-e4fc2fa4-b54d-4526-aa01-5f1eb26725ea: #fff;
+  --token-2da7c71e-0478-499a-a3a4-a3a8e8f3f38c: #e2e2dc;
+  --token-abfb5544-dab2-4a82-bc65-21862dd87c91: #cfcfc7;
+  --token-9228e15b-7b76-49f1-83cc-e2d91179cf58: #111;
+  --token-8f679162-ccc6-4339-b18a-528c9d87f8af: #66665f;
+  --token-7a95d861-32c9-4719-83b2-9c0b72bc5095: #ff4f00;
+  --token-fec5de8c-e6ab-4a83-9bc2-2d68a4af0ddf: #e54500;
+  --token-6b8e684d-ae60-4dc9-94ea-ebcb5d5c9134: #ff4f001f;
+  --token-c014b93a-5e34-4a27-aeb0-024f5dfb9b25: #111110;
+  --token-2a5539e6-6c22-4c5f-8815-43f2609a26de: #1a1a18;
+  --token-54bd0ee1-1b60-475b-8272-698e105678e9: #2c2c29;
+  --token-b824c6fb-5b23-4edb-9480-6f3ceb4ecff4: #8f8f87;
+  --token-08a7539f-f308-4e63-aefb-fa0c75a7dbea: #1f9d55;
+  --token-44430d66-9d02-4a3c-950f-e904b51544f9: #cc3d00;
+  --token-13982f90-4687-4375-9f79-34d63c8613e4: #88887f;
+  --token-32736e78-ceb8-4ee6-b7d6-6f69038af883: #a7a7a7d9;
+  --token-3a8507c8-d356-4c3e-9f91-039ced059d3b: #f16001}@supports (z-index:calc(infinity)){#__framer-badge-container{--infinity:infinity}}#__framer-badge-container{pointer-events:none;
+}

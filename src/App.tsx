@@ -161,13 +161,15 @@ function AppContent() {
       />
 
       {/* Top Navbar */}
-      <Navbar 
-        currentPage={currentPage} 
-        onNavigate={handleNavigate}
-        onOpenInbox={() => setIsInboxOpen(true)}
-        isTransitioning={isTransitioning}
-        transitionLabel={transitionLabel}
-      />
+      {currentPage !== 'home' && (
+        <Navbar 
+          currentPage={currentPage} 
+          onNavigate={handleNavigate}
+          onOpenInbox={() => setIsInboxOpen(true)}
+          isTransitioning={isTransitioning}
+          transitionLabel={transitionLabel}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1">
@@ -186,7 +188,7 @@ function AppContent() {
       </main>
 
       {/* Global Footer */}
-      <Footer onNavigate={handleNavigate} />
+      {currentPage !== 'home' && <Footer onNavigate={handleNavigate} />}
 
       {/* Floating Application Dock */}
       <DockNav 
