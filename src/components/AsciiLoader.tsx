@@ -78,26 +78,26 @@ export const AsciiLoader: React.FC<AsciiLoaderProps> = ({
 
   if (variant === 'inline') {
     return (
-      <div className={`inline-flex items-center gap-2 font-mono text-xs text-[#141413] select-none ${className}`}>
-        <span className="text-[#E5182B] font-bold">{spinner}</span>
-        <span className="text-[#66645E]">{label}</span>
-        <span className="text-[#87857F] tracking-tighter text-[11px]">{progressBarAscii}</span>
-        <span className="text-[#141413] font-semibold text-[11px]">{internalProgress}%</span>
+      <div className={`inline-flex items-center gap-2 font-mono text-xs text-[#111111] select-none ${className}`}>
+        <span className="text-[#E5182B] font-medium">{spinner}</span>
+        <span className="text-[#66665F]">{label}</span>
+        <span className="text-[#8F8F87] tracking-tighter text-[11px]">{progressBarAscii}</span>
+        <span className="text-[#111111] font-medium text-[11px]">{internalProgress}%</span>
       </div>
     );
   }
 
   if (variant === 'banner') {
     return (
-      <div className={`w-full py-2.5 px-4 bg-[#F2EFE9] border-y border-[#E3E0D8] font-mono text-xs text-[#141413] flex flex-wrap items-center justify-between gap-3 select-none ${className}`}>
+      <div className={`w-full py-2.5 px-4 bg-[#F4F4F1] border-y border-[#E2E2DC] font-mono text-xs text-[#111111] flex flex-wrap items-center justify-between gap-3 select-none ${className}`}>
         <div className="flex items-center gap-2.5">
           <span className="text-[#E5182B] font-bold text-sm">{spinner}</span>
-          <span className="font-semibold tracking-wider text-[11px] uppercase">{label}</span>
+          <span className="font-medium tracking-wider text-[11px] uppercase">{label}</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[#87857F] tracking-widest text-[11px]">{progressBarAscii}</span>
-          <span className="font-bold text-[#E5182B] text-[11px]">{internalProgress}%</span>
-          <span className="text-[#87857F] text-[10px] hidden sm:inline">CYCLE {slash}</span>
+          <span className="text-[#8F8F87] tracking-widest text-[11px]">{progressBarAscii}</span>
+          <span className="font-medium text-[#E5182B] text-[11px]">{internalProgress}%</span>
+          <span className="text-[#8F8F87] text-[10px] hidden sm:inline">CYCLE {slash}</span>
         </div>
       </div>
     );
@@ -105,29 +105,29 @@ export const AsciiLoader: React.FC<AsciiLoaderProps> = ({
 
   if (variant === 'overlay') {
     return (
-      <div className="fixed inset-0 z-50 bg-[#FAF8F5]/85 backdrop-blur-sm flex items-center justify-center p-4">
-        <div className="bg-white border border-[#E3E0D8] p-6 max-w-md w-full shadow-xl space-y-4 font-mono select-none">
-          <div className="flex items-center justify-between text-xs pb-3 border-b border-[#E3E0D8]">
+      <div className="fixed inset-0 z-50 bg-[#111110]/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-[#F4F4F1] border border-[#E2E2DC] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 font-mono select-none">
+          <div className="flex items-center justify-between text-xs pb-3 border-b border-[#E2E2DC]">
             <div className="flex items-center gap-2">
               <span className="text-[#E5182B] font-bold text-sm">{spinner}</span>
-              <span className="text-[#141413] font-semibold tracking-wider text-[11px]">VEIRON COGNITIVE CYCLE</span>
+              <span className="text-[#111111] font-medium tracking-wider text-[11px]">VEIRON COGNITIVE CYCLE</span>
             </div>
-            <span className="text-[#87857F] text-[11px]">AKHVNI-0.1.2</span>
+            <span className="text-[#8F8F87] text-[11px]">AKHVNI-0.1.2</span>
           </div>
 
           <div className="space-y-2 py-2">
-            <div className="text-xs text-[#474540] flex items-center justify-between">
+            <div className="text-xs text-[#333330] flex items-center justify-between">
               <span>{label}</span>
-              <span className="text-[#E5182B] font-bold">{internalProgress}%</span>
+              <span className="text-[#E5182B] font-medium">{internalProgress}%</span>
             </div>
-            <div className="text-xs text-[#87857F] tracking-wider overflow-hidden text-center sm:text-left">
+            <div className="text-xs text-[#8F8F87] tracking-wider overflow-hidden text-center sm:text-left">
               {progressBarAscii}
             </div>
           </div>
 
-          <div className="text-[10px] text-[#87857F] pt-2 border-t border-[#F0EEE6] flex items-center justify-between">
+          <div className="text-[10px] text-[#8F8F87] pt-2 border-t border-[#E2E2DC] flex items-center justify-between">
             <span>BAYESIAN EVIDENCE CONVERGENCE</span>
-            <span className="text-[#141413]">{pulseBlock}</span>
+            <span className="text-[#111111]">{pulseBlock}</span>
           </div>
         </div>
       </div>
@@ -136,23 +136,23 @@ export const AsciiLoader: React.FC<AsciiLoaderProps> = ({
 
   // Default 'card' variant
   return (
-    <div className={`p-5 bg-white border border-[#E3E0D8] font-mono text-xs select-none space-y-3 ${className}`}>
-      <div className="flex items-center justify-between text-[#87857F] pb-2 border-b border-[#F0EEE6]">
+    <div className={`p-5 bg-white border border-[#E2E2DC] rounded-xl font-mono text-xs select-none space-y-3 shadow-sm ${className}`}>
+      <div className="flex items-center justify-between text-[#8F8F87] pb-2 border-b border-[#E2E2DC]">
         <div className="flex items-center gap-2">
           <span className="text-[#E5182B] font-bold text-sm">{spinner}</span>
-          <span className="font-semibold text-[#141413] tracking-wide text-[11px]">{label}</span>
+          <span className="font-medium text-[#111111] tracking-wide text-[11px]">{label}</span>
         </div>
-        <span className="text-[11px] font-bold text-[#E5182B]">{internalProgress}%</span>
+        <span className="text-[11px] font-medium text-[#E5182B]">{internalProgress}%</span>
       </div>
 
-      <div className="py-1 flex items-center justify-between text-[#66645E]">
+      <div className="py-1 flex items-center justify-between text-[#66665F]">
         <span className="tracking-widest text-xs font-mono">{progressBarAscii}</span>
-        <span className="text-[11px] text-[#87857F] font-mono">TICK {slash}</span>
+        <span className="text-[11px] text-[#8F8F87] font-mono">TICK {slash}</span>
       </div>
 
-      <div className="text-[10px] text-[#87857F] flex items-center justify-between pt-1">
+      <div className="text-[10px] text-[#8F8F87] flex items-center justify-between pt-1">
         <span>MANIFOLD RECOMPUTATION</span>
-        <span className="text-[#87857F]">CYCLE IN PROGRESS</span>
+        <span className="text-[#8F8F87]">CYCLE IN PROGRESS</span>
       </div>
     </div>
   );

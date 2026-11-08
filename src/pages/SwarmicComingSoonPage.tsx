@@ -18,16 +18,16 @@ export const SwarmicComingSoonPage: React.FC<SwarmicComingSoonPageProps> = ({ on
   const dots = Array.from({ length: 36 }, (_, i) => i);
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#141413] flex flex-col items-center justify-center px-6 py-24 relative overflow-hidden">
+    <div className="min-h-screen bg-[#F4F4F1] text-[#111111] flex flex-col items-center justify-center px-6 py-24 relative overflow-hidden">
 
       {/* Animated background grid dots */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: 'radial-gradient(circle, #D5D0C5 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-            opacity: 0.45,
+            backgroundImage: 'radial-gradient(circle, #E2E2DC 1.5px, transparent 1.5px)',
+            backgroundSize: '32px 32px',
+            opacity: 0.65,
           }}
         />
       </div>
@@ -35,11 +35,11 @@ export const SwarmicComingSoonPage: React.FC<SwarmicComingSoonPageProps> = ({ on
       {/* Pulsing circle accent */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
         <div
-          className="w-[480px] h-[480px] rounded-full border border-[#E5182B]/10 animate-ping"
+          className="w-[480px] h-[480px] rounded-full border border-[#E5182B]/15 animate-ping"
           style={{ animationDuration: '3s' }}
         />
         <div
-          className="absolute inset-8 rounded-full border border-[#E5182B]/8 animate-ping"
+          className="absolute inset-8 rounded-full border border-[#E5182B]/10 animate-ping"
           style={{ animationDuration: '4.5s', animationDelay: '0.8s' }}
         />
       </div>
@@ -50,7 +50,7 @@ export const SwarmicComingSoonPage: React.FC<SwarmicComingSoonPageProps> = ({ on
         <div>
           <button
             onClick={() => onNavigate('products')}
-            className="inline-flex items-center gap-2 text-xs font-mono text-[#87857F] hover:text-[#141413] transition-colors cursor-pointer group"
+            className="inline-flex items-center gap-2 text-xs font-mono text-[#88887F] hover:text-[#111111] transition-colors cursor-pointer group"
           >
             <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
             <span>Back to Products</span>
@@ -59,59 +59,59 @@ export const SwarmicComingSoonPage: React.FC<SwarmicComingSoonPageProps> = ({ on
 
         {/* Product Badge */}
         <div className="flex flex-col items-center gap-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#141413] text-white text-[10px] font-mono font-semibold tracking-widest uppercase">
-            <Sparkles size={11} className="text-[#E5182B]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#111110] text-white text-[10px] font-mono font-medium tracking-widest uppercase border border-[#2C2C29]">
+            <Sparkles size={11} className="text-[#FF4F00]" />
             <span>Product 01 · Swarmic</span>
           </div>
 
           {/* Animated Logo Mark */}
           <div className="relative w-20 h-20 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border-2 border-[#E3E0D8]" />
+            <div className="absolute inset-0 rounded-full border border-[#E2E2DC]" />
             <div
-              className="absolute inset-1 rounded-full border border-[#E5182B]/30"
+              className="absolute inset-1 rounded-full border border-[#E5182B]/40"
               style={{
                 transform: `rotate(${tick * 1.5}deg)`,
                 transition: 'transform 0.09s linear',
               }}
             />
-            <div className="w-8 h-8 bg-[#141413] rounded-sm flex items-center justify-center">
-              <Sparkles size={16} className="text-[#E5182B]" />
+            <div className="w-8 h-8 bg-[#111110] rounded-sm flex items-center justify-center">
+              <Sparkles size={16} className="text-[#FF4F00]" />
             </div>
           </div>
         </div>
 
         {/* Headline */}
         <div className="space-y-3">
-          <h1 className="text-4xl sm:text-5xl font-serif text-[#141413] tracking-tight leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-heading font-medium text-[#111111] tracking-[-0.04em] leading-tight">
             Something new is<br />
-            <span className="italic text-[#E5182B]">taking shape.</span>
+            <span className="text-[#E5182B]">taking shape.</span>
           </h1>
-          <p className="text-sm text-[#66645E] leading-relaxed max-w-sm mx-auto">
+          <p className="text-sm text-[#66665F] leading-relaxed max-w-sm mx-auto font-sans">
             Swarmic is under active development. We're not ready to share details yet — but something meaningful is on its way.
           </p>
         </div>
 
         {/* Status line */}
-        <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-[#87857F]">
-          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+        <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-[#88887F]">
+          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
           <span>STATUS: IN DEVELOPMENT · NO LAUNCH DATE</span>
         </div>
 
         {/* Divider */}
-        <div className="w-12 h-[1px] bg-[#D5D0C5] mx-auto" />
+        <div className="w-12 h-[1px] bg-[#E2E2DC] mx-auto" />
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             onClick={() => onNavigate('products')}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#141413] text-white text-xs font-semibold tracking-wide hover:bg-[#2B2A28] transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#111110] text-white text-xs font-medium tracking-wide rounded-full hover:bg-[#2C2C29] transition-all cursor-pointer"
           >
             <ArrowLeft size={13} />
             <span>Back to Products</span>
           </button>
           <button
             onClick={() => onNavigate('aakashavani')}
-            className="flex items-center gap-2 px-5 py-2.5 bg-transparent border border-[#D5D0C5] text-[#141413] text-xs font-semibold tracking-wide hover:bg-[#F0EEE6] hover:border-[#141413] transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-[#E2E2DC] text-[#111111] text-xs font-medium tracking-wide rounded-full hover:border-[#111111] hover:bg-[#F4F4F1] transition-all cursor-pointer"
           >
             <span>Explore Aakashavani →</span>
           </button>

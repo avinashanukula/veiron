@@ -18,22 +18,22 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   };
 
   return (
-    <footer className="w-full bg-[#111110] border-t border-[#262624] text-[#A19F97] pt-16 pb-28 sm:pb-36 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Grid Columns matching Anthropic video frames 00:03 - 00:05 */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 pb-16 border-b border-[#262624]">
+    <footer className="w-full bg-[#111110] border-t border-[#2C2C29] text-[#8F8F87] pt-16 pb-28 sm:pb-36 font-sans">
+      <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
+        {/* Main Grid Columns matching Overview design system */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 pb-16 border-b border-[#2C2C29]">
           {/* Brand Mark Column */}
           <div className="col-span-2 space-y-4 pr-4">
             <div className="flex items-center gap-3">
-              <VeironLogo size={36} showText={true} textColor="text-[#FAF8F5]" />
+              <VeironLogo size={36} showText={true} textColor="text-white" />
             </div>
-            <p className="text-base font-serif text-[#FAF8F5] leading-snug">
+            <p className="text-base font-heading font-medium text-white leading-snug">
               Build the model of the world.
             </p>
-            <p className="text-xs text-[#87857F] leading-relaxed max-w-sm">
+            <p className="text-xs text-[#8F8F87] leading-relaxed max-w-sm">
               Veiron builds AI-native world models that understand complex, continuously changing environments and help institutions reason, simulate, and make decisions under uncertainty.
             </p>
-            <div className="pt-2 text-[11px] font-mono text-[#87857F] flex items-center gap-2">
+            <div className="pt-2 text-[11px] font-mono text-[#8F8F87] flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-[#E5182B]" />
               <span>AKHVNI-0.1.2 :: FINANCIAL_ENVIRONMENT</span>
             </div>
@@ -41,7 +41,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 1: Products */}
           <div className="space-y-3 text-xs">
-            <div className="text-[#FAF8F5] font-semibold tracking-wide text-xs">
+            <div className="text-white font-heading font-medium tracking-wide text-xs">
               Products
             </div>
             <ul className="space-y-2">
@@ -83,7 +83,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 2: Research */}
           <div className="space-y-3 text-xs">
-            <div className="text-[#FAF8F5] font-semibold tracking-wide text-xs">
+            <div className="text-white font-heading font-medium tracking-wide text-xs">
               Research
             </div>
             <ul className="space-y-2">
@@ -124,7 +124,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 3: Applications & Verticals */}
           <div className="space-y-3 text-xs">
-            <div className="text-[#FAF8F5] font-semibold tracking-wide text-xs">
+            <div className="text-white font-heading font-medium tracking-wide text-xs">
               Institutions
             </div>
             <ul className="space-y-2">
@@ -165,10 +165,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 4: Contact & Access */}
           <div className="space-y-3 text-xs">
-            <div className="text-[#FAF8F5] font-semibold tracking-wide text-xs">
+            <div className="text-white font-heading font-medium tracking-wide text-xs">
               Inquiries
             </div>
-            <p className="text-[11px] text-[#87857F]">
+            <p className="text-[11px] text-[#8F8F87]">
               Direct communication for institutions:
             </p>
             <a
@@ -180,7 +180,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div className="pt-1">
               <button
                 onClick={copyEmail}
-                className="text-[10px] font-mono text-[#87857F] hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+                className="text-[10px] font-mono text-[#8F8F87] hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
               >
                 {copied ? (
                   <>
@@ -198,7 +198,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div className="pt-2">
               <button
                 onClick={() => onNavigate('contact')}
-                className="px-3 py-1.5 bg-[#222220] hover:bg-[#2B2A28] text-white text-[11px] font-medium transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 bg-[#1A1A18] hover:bg-[#2C2C29] border border-[#2C2C29] text-white text-[11px] font-medium rounded-full transition-colors cursor-pointer"
               >
                 Request Briefing →
               </button>
@@ -207,14 +207,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         {/* Bottom Slogan & Copyright */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#63625D]">
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#66665F]">
           <div className="flex items-center gap-3">
             <span>© {new Date().getFullYear()} VEIRON TECHNOLOGIES INC.</span>
             <span>·</span>
             <span>ALL RIGHTS RESERVED</span>
           </div>
 
-          <div className="flex items-center gap-4 text-[11px] font-mono">
+          <div className="flex items-center gap-4 text-[11px] font-mono text-[#8F8F87]">
             <span>FINANCE</span>
             <span>·</span>
             <span>HEDGE FUNDS</span>

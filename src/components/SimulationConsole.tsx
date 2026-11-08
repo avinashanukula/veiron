@@ -160,16 +160,16 @@ export const SimulationConsole: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-[#0a0a0f] border border-[#23232f] text-neutral-300 font-sans">
+    <div className="w-full bg-[#111110] border border-[#2C2C29] text-[#8F8F87] font-sans">
       {/* Console Top Header */}
-      <div className="bg-[#0f0f16] border-b border-[#23232f] px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-[#1A1A18] border-b border-[#2C2C29] px-4 py-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <AakashavaniLogo size={24} showWordmark={false} color="#e5182b" />
           <div>
-            <div className="font-mono text-xs font-bold text-white tracking-wider">
+            <div className="font-heading font-medium text-xs text-white tracking-wider">
               AAKASHAVANI WORLD MODEL CONSOLE
             </div>
-            <div className="text-[10px] font-mono text-neutral-400">
+            <div className="text-[10px] font-mono text-[#8F8F87]">
               ENVIRONMENT: CONTINUOUS FINANCIAL INTELLIGENCE SIMULATOR
             </div>
           </div>
@@ -179,7 +179,7 @@ export const SimulationConsole: React.FC = () => {
           <button
             onClick={handleRerun}
             disabled={isComputing}
-            className="px-2.5 py-1 text-[11px] bg-[#1a1a24] hover:bg-[#252535] text-neutral-300 border border-[#2f2f42] transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="px-3 py-1 text-[11px] bg-[#111110] hover:bg-[#2C2C29] text-white border border-[#2C2C29] rounded-full transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             title="Re-run Bayesian Invalidation Cycle"
           >
             <RefreshCw size={11} className={isComputing ? 'animate-spin text-[#e5182b]' : ''} />
@@ -189,22 +189,22 @@ export const SimulationConsole: React.FC = () => {
       </div>
 
       {/* Scenario Selector Tabs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 border-b border-[#23232f] bg-[#0c0c12]">
+      <div className="grid grid-cols-1 md:grid-cols-3 border-b border-[#2C2C29] bg-[#141413]">
         {SCENARIOS.map((sc, i) => (
           <button
             key={sc.id}
             onClick={() => handleSelectScenario(i)}
-            className={`p-3 text-left border-b md:border-b-0 md:border-r border-[#23232f] transition-all cursor-pointer ${
+            className={`p-3 text-left border-b md:border-b-0 md:border-r border-[#2C2C29] transition-all cursor-pointer ${
               selectedScenarioIndex === i
-                ? 'bg-[#15151e] border-l-2 md:border-l-0 md:border-t-2 border-[#e5182b] text-white'
-                : 'text-neutral-400 hover:text-neutral-200 hover:bg-[#101017]'
+                ? 'bg-[#1A1A18] border-l-2 md:border-l-0 md:border-t-2 border-[#e5182b] text-white'
+                : 'text-[#8F8F87] hover:text-white hover:bg-[#1A1A18]'
             }`}
           >
-            <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 mb-1">
+            <div className="flex items-center justify-between text-[10px] font-mono text-[#8F8F87] mb-1">
               <span>TEST RUN 0{i + 1}</span>
-              <span className="text-neutral-400">{sc.domain}</span>
+              <span className="text-[#8F8F87]">{sc.domain}</span>
             </div>
-            <div className="text-xs font-semibold line-clamp-1 text-white">
+            <div className="text-xs font-heading font-medium line-clamp-1 text-white">
               {sc.title}
             </div>
           </button>
@@ -213,29 +213,29 @@ export const SimulationConsole: React.FC = () => {
 
       {/* Main Console Body */}
       {isComputing ? (
-        <div className="p-8 sm:p-14 flex flex-col items-center justify-center space-y-4 bg-[#0c0c12]">
+        <div className="p-8 sm:p-14 flex flex-col items-center justify-center space-y-4 bg-[#111110]">
           <AsciiLoader
             variant="card"
             label={`RUNNING ADVERSARIAL DIALECTIC ON [TEST RUN 0${selectedScenarioIndex + 1}]...`}
             durationMs={600}
-            className="max-w-lg w-full bg-[#12121c] border-[#29293d] text-white"
+            className="max-w-lg w-full bg-[#1A1A18] border-[#2C2C29] text-white"
           />
         </div>
       ) : (
       <div className="p-4 sm:p-6 space-y-6">
         {/* Shock Event Ingestion Banner */}
-        <div className="p-4 bg-[#121013] border-l-2 border-[#e5182b] border-t border-r border-b border-[#281b20]">
-          <div className="flex items-center gap-2 font-mono text-[11px] text-[#ff4d5e] uppercase tracking-wider mb-1">
+        <div className="p-4 bg-[#1A1A18] border-l-2 border-[#e5182b] border-t border-r border-b border-[#2C2C29]">
+          <div className="flex items-center gap-2 font-mono text-[11px] text-[#ff4f00] uppercase tracking-wider mb-1">
             <Flame size={14} />
             <span>REAL-TIME ENVIRONMENT SHOCK DETECTED</span>
           </div>
-          <p className="text-sm font-medium text-white">
+          <p className="text-sm font-medium text-white font-sans">
             {scenario.shockEvent}
           </p>
-          <div className="flex items-center gap-4 mt-2 font-mono text-[11px] text-neutral-400">
-            <span>PRIOR REGIME: <span className="text-neutral-300">{scenario.initialRegime}</span></span>
+          <div className="flex items-center gap-4 mt-2 font-mono text-[11px] text-[#8F8F87]">
+            <span>PRIOR REGIME: <span className="text-white">{scenario.initialRegime}</span></span>
             <span>·</span>
-            <span>INGESTION DELAY: <span className="text-emerald-400">4.1ms</span></span>
+            <span>INGESTION DELAY: <span className="text-[#1F9D55]">4.1ms</span></span>
           </div>
         </div>
 
@@ -243,62 +243,62 @@ export const SimulationConsole: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: Probabilistic Belief State */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="font-mono text-xs text-neutral-400 uppercase tracking-wider flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-white font-semibold">
+            <div className="font-mono text-xs text-[#8F8F87] uppercase tracking-wider flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-white font-medium">
                 <Activity size={14} className="text-[#e5182b]" />
                 BELIEF STATE EVOLUTION
               </span>
-              <span className="text-[10px] text-neutral-400">BAYESIAN INFERENCE</span>
+              <span className="text-[10px] text-[#8F8F87]">BAYESIAN INFERENCE</span>
             </div>
 
-            <div className="p-4 bg-[#0d0d14] border border-[#20202c] space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between pb-2 border-b border-[#1c1c28]">
-                <span className="text-neutral-400">CURRENT REGIME:</span>
-                <span className="text-white font-bold text-right text-[11px] bg-[#1d1d28] px-2 py-0.5 border border-neutral-700">
+            <div className="p-4 bg-[#141413] border border-[#2C2C29] space-y-3 font-mono text-xs">
+              <div className="flex items-center justify-between pb-2 border-b border-[#2C2C29]">
+                <span className="text-[#8F8F87]">CURRENT REGIME:</span>
+                <span className="text-white font-bold text-right text-[11px] bg-[#1A1A18] px-2 py-0.5 border border-[#2C2C29]">
                   {scenario.beliefState.regime}
                 </span>
               </div>
 
               <div>
                 <div className="flex items-center justify-between text-[11px] mb-1">
-                  <span className="text-neutral-400">EPISTEMIC UNCERTAINTY:</span>
+                  <span className="text-[#8F8F87]">EPISTEMIC UNCERTAINTY:</span>
                   <span className="text-amber-400 font-bold">
                     {(scenario.beliefState.epistemicUncertainty * 100).toFixed(0)}%
                   </span>
                 </div>
-                <div className="w-full bg-[#181822] h-2 border border-neutral-800">
+                <div className="w-full bg-[#1A1A18] h-2 border border-[#2C2C29]">
                   <div 
                     className="bg-gradient-to-r from-amber-500 to-[#e5182b] h-full"
                     style={{ width: `${scenario.beliefState.epistemicUncertainty * 100}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-neutral-400 mt-1">
+                <p className="text-[10px] text-[#8F8F87] mt-1 font-sans">
                   Explicit quantification of unobserved market variables.
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-[#1c1c28] text-[11px]">
-                <span className="text-neutral-400">VOLATILITY SURFACE:</span>
-                <span className="text-neutral-200">{scenario.beliefState.volatilitySurface}</span>
+              <div className="flex items-center justify-between pt-2 border-t border-[#2C2C29] text-[11px]">
+                <span className="text-[#8F8F87]">VOLATILITY SURFACE:</span>
+                <span className="text-white">{scenario.beliefState.volatilitySurface}</span>
               </div>
 
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-neutral-400">LIQUIDITY DEPTH:</span>
-                <span className="text-[#ff4d5e]">{scenario.beliefState.liquidityStress}</span>
+                <span className="text-[#8F8F87]">LIQUIDITY DEPTH:</span>
+                <span className="text-[#ff4f00]">{scenario.beliefState.liquidityStress}</span>
               </div>
             </div>
 
             {/* Invalidation Conditions Block */}
-            <div className="p-3.5 bg-[#0e0e13] border border-[#1f1f2a] space-y-2">
-              <div className="font-mono text-[10px] text-neutral-400 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="p-3.5 bg-[#141413] border border-[#2C2C29] space-y-2">
+              <div className="font-mono text-[10px] text-[#8F8F87] uppercase tracking-wider flex items-center gap-1.5">
                 <AlertTriangle size={12} className="text-[#e5182b]" />
                 <span>WHAT WOULD INVALIDATE THIS BELIEF?</span>
               </div>
-              <ul className="space-y-1.5 font-mono text-[11px] text-neutral-300">
+              <ul className="space-y-1.5 font-mono text-[11px] text-[#8F8F87]">
                 {scenario.beliefState.invalidationConditions.map((cond, ci) => (
                   <li key={ci} className="flex items-start gap-2">
                     <span className="text-[#e5182b] font-bold">»</span>
-                    <span>{cond}</span>
+                    <span className="text-white">{cond}</span>
                   </li>
                 ))}
               </ul>
@@ -307,12 +307,12 @@ export const SimulationConsole: React.FC = () => {
 
           {/* Right Column: Competing Hypotheses & Adversarial Review */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="font-mono text-xs text-neutral-400 uppercase tracking-wider flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-white font-semibold">
+            <div className="font-mono text-xs text-[#8F8F87] uppercase tracking-wider flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-white font-medium">
                 <Scale size={14} className="text-[#e5182b]" />
                 ADVERSARIAL HYPOTHESIS ARENA
               </span>
-              <span className="text-[10px] text-neutral-400">DIALECTIC ENGINE</span>
+              <span className="text-[10px] text-[#8F8F87]">DIALECTIC ENGINE</span>
             </div>
 
             <div className="space-y-3">
@@ -323,30 +323,30 @@ export const SimulationConsole: React.FC = () => {
                     key={hi}
                     className={`p-4 border transition-all ${
                       isWinner
-                        ? 'bg-[#12131b] border-neutral-600'
-                        : 'bg-[#0c0c11] border-[#1c1c24] opacity-80'
+                        ? 'bg-[#1A1A18] border-[#2C2C29]'
+                        : 'bg-[#141413] border-[#2C2C29] opacity-80'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-3 mb-2 font-mono">
-                      <span className={`text-xs font-bold ${isWinner ? 'text-white' : 'text-neutral-400'}`}>
+                      <span className={`text-xs font-bold ${isWinner ? 'text-white' : 'text-[#8F8F87]'}`}>
                         {hyp.label}
                       </span>
                       <span className={`text-xs font-mono px-2 py-0.5 border ${
                         isWinner 
                           ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400' 
-                          : 'border-neutral-700 bg-neutral-800 text-neutral-400'
+                          : 'border-[#2C2C29] bg-[#111110] text-[#8F8F87]'
                       }`}>
                         P = {(hyp.probability * 100).toFixed(0)}%
                       </span>
                     </div>
 
-                    <div className="text-xs text-neutral-300 font-sans mb-2">
-                      <span className="font-mono text-[10px] text-neutral-400 uppercase tracking-wider mr-1">Evidence:</span>
+                    <div className="text-xs text-[#8F8F87] font-sans mb-2">
+                      <span className="font-mono text-[10px] text-[#8F8F87] uppercase tracking-wider mr-1">Evidence:</span>
                       {hyp.evidence}
                     </div>
 
-                    <div className="p-2.5 bg-[#09090c] border border-neutral-800 text-[11px] font-mono leading-relaxed">
-                      <span className={isWinner ? 'text-emerald-400' : 'text-[#ff4d5e]'}>
+                    <div className="p-2.5 bg-[#111110] border border-[#2C2C29] text-[11px] font-mono leading-relaxed">
+                      <span className={isWinner ? 'text-emerald-400' : 'text-[#ff4f00]'}>
                         {hyp.counterClaim}
                       </span>
                     </div>
@@ -356,15 +356,15 @@ export const SimulationConsole: React.FC = () => {
             </div>
 
             {/* Dynamic Orchestration Log */}
-            <div className="p-3 bg-[#0a0a0f] border border-[#1e1e28] space-y-1.5">
-              <div className="font-mono text-[10px] text-neutral-400 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="p-3 bg-[#141413] border border-[#2C2C29] space-y-1.5">
+              <div className="font-mono text-[10px] text-[#8F8F87] uppercase tracking-wider flex items-center gap-1.5">
                 <Cpu size={12} className="text-[#e5182b]" />
                 <span>DYNAMIC SPECIALIST ORCHESTRATION</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-neutral-400">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-[#8F8F87]">
                 {scenario.orchestrationDispatched.map((disp, di) => (
-                  <div key={di} className="p-1.5 bg-[#12121a] border border-[#21212c] truncate">
-                    <span className="text-neutral-500">[{di + 1}]</span> {disp}
+                  <div key={di} className="p-1.5 bg-[#1A1A18] border border-[#2C2C29] truncate">
+                    <span className="text-[#8F8F87]">[{di + 1}]</span> {disp}
                   </div>
                 ))}
               </div>
@@ -373,22 +373,22 @@ export const SimulationConsole: React.FC = () => {
         </div>
 
         {/* Verification & Evolved World Model Decision State */}
-        <div className="p-4 sm:p-5 bg-[#0e0e15] border border-[#242433] space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#20202c] pb-2 font-mono text-xs">
+        <div className="p-4 sm:p-5 bg-[#1A1A18] border border-[#2C2C29] space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#2C2C29] pb-2 font-mono text-xs">
             <div className="flex items-center gap-2 text-white font-bold">
-              <CheckCircle2 size={15} className="text-emerald-400" />
+              <CheckCircle2 size={15} className="text-[#1F9D55]" />
               <span>VERIFIED INSTITUTIONAL DECISION STATE</span>
             </div>
-            <div className="text-neutral-400 text-[11px]">
+            <div className="text-[#8F8F87] text-[11px]">
               RECURSIVE FEEDBACK COMPLETED · LATENCY 14.8ms
             </div>
           </div>
 
-          <p className="text-sm font-medium text-white leading-relaxed">
+          <p className="text-sm font-medium text-white leading-relaxed font-sans">
             {scenario.verifiedAction}
           </p>
 
-          <div className="font-mono text-[11px] text-neutral-400 flex items-center gap-2 pt-1">
+          <div className="font-mono text-[11px] text-[#8F8F87] flex items-center gap-2 pt-1">
             <span className="text-[#e5182b]">RESOLVED ADVERSARIAL VERDICT:</span>
             <span>{scenario.adversarialResolution}</span>
           </div>

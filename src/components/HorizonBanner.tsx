@@ -1,63 +1,116 @@
 import React from 'react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 interface HorizonBannerProps {
   headline?: string;
   subtext?: string;
   tag?: string;
+  onNavigate?: (page: any) => void;
+  ctaText?: string;
+  ctaPage?: string;
+  indexNumber?: string;
 }
 
 export const HorizonBanner: React.FC<HorizonBannerProps> = ({
-  headline = "The world changes. The model changes with it.",
-  subtext = "Continuous, self-updating intelligence for high-stakes environments.",
-  tag = "VEIRON HORIZON MANIFOLD"
+  headline = "Ship world models that don't break.",
+  subtext = "Continuous, self-updating intelligence for high-stakes institutional environments.",
+  tag = "VEIRON COGNITIVE ARCHITECTURE",
+  onNavigate,
+  ctaText = "Talk to an engineer",
+  ctaPage = "contact",
+  indexNumber = "15"
 }) => {
   return (
-    <div className="relative w-full h-[380px] sm:h-[480px] lg:h-[540px] bg-[#0A0A09] overflow-hidden flex items-center justify-center text-center select-none border-y border-[#262624]">
-      {/* Deep Space Background with subtle star grain */}
-      <div 
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage: 'radial-gradient(1.5px 1.5px at 20px 30px, #ffffff, rgba(0,0,0,0)), radial-gradient(1px 1px at 140px 70px, #ffffff, rgba(0,0,0,0)), radial-gradient(1.5px 1.5px at 220px 180px, #ffffff, rgba(0,0,0,0)), radial-gradient(1px 1px at 300px 120px, #ffffff, rgba(0,0,0,0))',
-          backgroundSize: '360px 360px'
-        }}
-      />
-
-      {/* Atmospheric Curved Horizon (matching Anthropic video frame 00:01) */}
-      <div 
-        className="absolute -bottom-[280px] sm:-bottom-[380px] lg:-bottom-[440px] left-1/2 -translate-x-1/2 w-[900px] sm:w-[1400px] lg:w-[1800px] h-[600px] sm:h-[800px] lg:h-[950px] rounded-[50%] pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 15%, rgba(229, 24, 43, 0.45) 0%, rgba(200, 70, 30, 0.25) 30%, rgba(10, 10, 9, 0.95) 75%)',
-          boxShadow: '0 -20px 100px 30px rgba(229, 24, 43, 0.2), inset 0 2px 25px 2px rgba(255, 230, 200, 0.4)',
-          borderTop: '1px solid rgba(255, 240, 220, 0.5)'
-        }}
-      />
-
-      {/* Subtle Luminous Rays / Glow Flares rising from the curve */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none opacity-50"
-        style={{
-          background: 'linear-gradient(to top, rgba(229, 24, 43, 0.15), transparent)'
-        }}
-      />
-
-      {/* Typography Overlaid on Horizon (matching Anthropic video typography at 00:01) */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 space-y-4">
-        <div className="inline-block font-mono text-[11px] uppercase tracking-[0.3em] text-[#E5182B] opacity-90">
-          {tag}
+    <section className="w-full bg-[#111110] border-y border-[#2C2C29] text-[#8F8F87] select-none">
+      <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row">
+        
+        {/* Left Index Number Rail matching inspo */}
+        <div className="hidden md:flex w-24 border-r border-[#2C2C29] p-8 shrink-0 flex-col justify-between">
+          <span className="font-mono text-xs text-[#8F8F87]">{indexNumber}</span>
+          <span className="font-mono text-[10px] text-[#2C2C29]">SEC_END</span>
         </div>
 
-        <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-[#FAF8F5] tracking-tight leading-[1.12] drop-shadow-md">
-          {headline}
-        </h2>
+        {/* Content Column */}
+        <div className="flex-1 flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-[#2C2C29]">
+          
+          {/* Left Text Block */}
+          <div className="flex-1 p-8 sm:p-12 md:p-16 flex flex-col justify-between space-y-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-[#FF4F00]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF4F00] animate-pulse" />
+                <span>{tag}</span>
+              </div>
 
-        <p className="text-sm sm:text-base text-[#D4D0C5] font-sans max-w-xl mx-auto font-light leading-relaxed">
-          {subtext}
-        </p>
+              <h2 className="text-3xl sm:text-5xl md:text-6xl font-heading font-medium text-white tracking-[-0.04em] leading-[1.05]">
+                {headline}
+              </h2>
 
-        <div className="pt-2 font-mono text-[10px] text-[#A19F97] tracking-widest uppercase">
-          CONTINUOUS WORLD MANIFOLD :: 12,400 DIMENSIONS
+              <p className="text-sm sm:text-base text-[#8F8F87] font-sans leading-relaxed max-w-lg">
+                {subtext}
+              </p>
+            </div>
+
+            <div className="pt-4 flex flex-wrap items-center gap-3">
+              {onNavigate && (
+                <button
+                  onClick={() => onNavigate(ctaPage)}
+                  className="px-6 py-3 bg-[#FF4F00] hover:bg-[#E54500] text-white text-xs font-sans font-medium rounded-full flex items-center gap-2 shadow-lg shadow-[#FF4F00]/25 transition-all cursor-pointer active:scale-95"
+                >
+                  <span>{ctaText}</span>
+                  <ArrowRight size={14} />
+                </button>
+              )}
+              
+              <div className="font-mono text-[11px] text-[#8F8F87]">
+                DETERMINISTIC COGNITIVE VERIFICATION
+              </div>
+            </div>
+          </div>
+
+          {/* Right SVG Graphic: Concentric Signal Rings matching inspo */}
+          <div className="lg:w-[420px] p-8 sm:p-12 flex items-center justify-center relative overflow-hidden bg-[#141413]">
+            {/* Ambient Ember Gradient Glow */}
+            <div className="absolute inset-0 bg-radial from-[#FF4F00]/10 via-transparent to-transparent pointer-events-none" />
+
+            {/* SVG Concentric Square Signal Rings */}
+            <svg 
+              viewBox="0 0 400 400" 
+              className="w-full max-w-[320px] h-auto aspect-square" 
+              shapeRendering="crispEdges"
+            >
+              {/* Outer boundary */}
+              <rect x="20" y="20" width="360" height="360" fill="none" stroke="#2C2C29" strokeWidth="1" strokeDasharray="4 4" />
+              
+              {/* Concentric rings */}
+              <rect x="50" y="50" width="300" height="300" fill="none" stroke="#8F8F87" strokeOpacity="0.25" strokeWidth="1" />
+              <rect x="85" y="85" width="230" height="230" fill="none" stroke="#8F8F87" strokeOpacity="0.35" strokeWidth="1" />
+              <rect x="120" y="120" width="160" height="160" fill="none" stroke="#8F8F87" strokeOpacity="0.45" strokeWidth="1" />
+              <rect x="155" y="155" width="90" height="90" fill="none" stroke="#8F8F87" strokeOpacity="0.6" strokeWidth="1" />
+              <rect x="180" y="180" width="40" height="40" fill="none" stroke="#FF4F00" strokeWidth="1" />
+              
+              {/* Axis crosshair lines */}
+              <line x1="200" y1="20" x2="200" y2="380" stroke="#2C2C29" strokeWidth="1" strokeDasharray="2 2" />
+              <line x1="20" y1="200" x2="380" y2="200" stroke="#2C2C29" strokeWidth="1" strokeDasharray="2 2" />
+
+              {/* Pulsing Core node */}
+              <circle cx="200" cy="200" r="4" fill="#FF4F00" />
+              <circle cx="200" cy="200" r="10" fill="none" stroke="#FF4F00" strokeOpacity="0.5" strokeWidth="1" className="animate-ping" style={{ transformOrigin: 'center' }} />
+
+              {/* Corner corner-bracket ticks */}
+              <path d="M 20 30 V 20 H 30" fill="none" stroke="#8F8F87" strokeWidth="1" />
+              <path d="M 370 20 H 380 V 30" fill="none" stroke="#8F8F87" strokeWidth="1" />
+              <path d="M 20 370 V 380 H 30" fill="none" stroke="#8F8F87" strokeWidth="1" />
+              <path d="M 370 380 H 380 V 370" fill="none" stroke="#8F8F87" strokeWidth="1" />
+            </svg>
+
+            {/* Bottom Tag */}
+            <div className="absolute bottom-4 right-4 font-mono text-[9px] text-[#8F8F87]">
+              SR-11-7 :: TELEMETRY_GRID
+            </div>
+          </div>
+
         </div>
       </div>
-    </div>
+    </section>
   );
 };

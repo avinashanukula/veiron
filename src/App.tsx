@@ -166,7 +166,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#141413] selection:bg-[#E5182B]/20 selection:text-[#141413]">
+    <div className="min-h-screen flex flex-col bg-[#F4F4F1] text-[#111111] selection:bg-[#E5182B]/20 selection:text-[#111111]">
       {/* Forced / Prompted System Notification Modal */}
       <NotificationModal />
 
@@ -207,10 +207,15 @@ function AppContent() {
         {currentPage === '404' && <NotFoundPage onNavigate={handleNavigate} />}
       </main>
 
+      {/* Continuous Architectural Frame Rails matching Overview */}
+      {currentPage !== 'home' && (
+        <div className="pointer-events-none fixed top-0 bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[1120px] border-x border-[#E2E2DC] z-30 hidden lg:block" />
+      )}
+
       {/* Global Footer */}
       {currentPage !== 'home' && <Footer onNavigate={handleNavigate} />}
 
-      {/* Floating Application Dock */}
+      {/* Floating Application Bottom Navigation Dock */}
       <DockNav 
         currentPage={currentPage} 
         onNavigate={handleNavigate}
