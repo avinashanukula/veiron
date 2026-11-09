@@ -1,10 +1,8 @@
-import React from 'react';
-import { VeironLogo } from './logos/VeironLogo';
+import React, { useState } from 'react';
 import { Page } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { ProfileDropdown } from './ProfileDropdown';
-import { ArrowUpRight, Inbox, LogIn, ShieldCheck } from 'lucide-react';
-import { AsciiLoader } from './AsciiLoader';
+import { ShieldCheck, Inbox, ArrowUpRight, Menu, X } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: Page;
@@ -18,109 +16,229 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentPage, 
   onNavigate,
   onOpenInbox,
-  isTransitioning = false,
-  transitionLabel = 'RESOLVING RECURSIVE STATE...'
 }) => {
-  const { isAuthenticated, currentUser, unreadCount } = useAuth();
+  const { isAuthenticated, unreadCount } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navItems: { id: Page; label: string; number: string; isActive?: (p: Page) => boolean }[] = [
+    { id: 'home', label: 'Overview', number: '01' },
+    { 
+      id: 'products', 
+      label: 'Products', 
+      number: '02',
+      isActive: (p) => p === 'products' || p === 'swarmic' || p === 'aakashavani'
+    },
+    { id: 'approach', label: 'Approach', number: '03' },
+    { id: 'applications', label: 'Applications', number: '04' },
+    { id: 'about', label: 'About', number: '05' },
+    { id: 'contact', label: 'Contact', number: '06' },
+  ];
+
+  const handleNavClick = (page: Page) => {
+    onNavigate(page);
+    setMobileMenuOpen(false);
+  };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#E3E0D8] transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-18">
-          {/* Logo & Brand Identity */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => onNavigate('home')}
-              className="group flex items-center gap-3 cursor-pointer text-left focus:outline-none"
+    <header className="sticky top-0 z-40 w-full bg-[#F4F4F1]/95 backdrop-blur-md border-b border-[#E2E2DC] transition-all">
+      <div className="max-w-[1120px] mx-auto h-[72px] px-4 sm:px-6 lg:px-8 border-x border-[#E2E2DC] flex items-center justify-between">
+        
+        {/* Brand: Logo Glyph + Wordmark */}
+        <button
+          onClick={() => handleNavClick('home')}
+          className="flex items-center gap-3 cursor-pointer text-left focus:outline-none group select-none"
+        >
+          {/* 7x7 Pixel Glyph matching inspo */}
+          <div className="w-[21px] h-[21px] shrink-0">
+            <svg 
+              width="21" 
+              height="21" 
+              viewBox="0 0 7 7" 
+              shapeRendering="crispEdges" 
+              role="img" 
+              aria-label="Veiron glyph" 
+              className="block group-hover:scale-105 transition-transform"
             >
-              <VeironLogo size={32} showText={true} textColor="text-[#141413]" />
-            </button>
-            <span className="hidden sm:inline-block text-[11px] font-mono text-[#87857F] pl-3 border-l border-[#E3E0D8]">
-              WORLD MODELS FOR INSTITUTIONS
-            </span>
+              <rect x="2" y="0" width="1" height="1" fill="#111111"/>
+              <rect x="3" y="0" width="1" height="1" fill="#111111"/>
+              <rect x="4" y="0" width="1" height="1" fill="#111111"/>
+              <rect x="1" y="1" width="1" height="1" fill="#111111"/>
+              <rect x="5" y="1" width="1" height="1" fill="#111111"/>
+              <rect x="0" y="2" width="1" height="1" fill="#111111"/>
+              <rect x="3" y="2" width="1" height="1" fill="#111111"/>
+              <rect x="6" y="2" width="1" height="1" fill="#111111"/>
+              <rect x="0" y="3" width="1" height="1" fill="#111111"/>
+              <rect x="2" y="3" width="1" height="1" fill="#111111"/>
+              <rect x="3" y="3" width="1" height="1" fill="#111111"/>
+              <rect x="4" y="3" width="1" height="1" fill="#111111"/>
+              <rect x="6" y="3" width="1" height="1" fill="#111111"/>
+              <rect x="0" y="4" width="1" height="1" fill="#111111"/>
+              <rect x="3" y="4" width="1" height="1" fill="#111111"/>
+              <rect x="6" y="4" width="1" height="1" fill="#111111"/>
+              <rect x="1" y="5" width="1" height="1" fill="#111111"/>
+              <rect x="5" y="5" width="1" height="1" fill="#111111"/>
+              <rect x="2" y="6" width="1" height="1" fill="#111111"/>
+              <rect x="3" y="6" width="1" height="1" fill="#111111"/>
+              <rect x="4" y="6" width="1" height="1" fill="#111111"/>
+            </svg>
           </div>
+          <span className="font-heading font-medium text-[20px] text-[#111111] tracking-[-0.02em]">
+            Veiron
+          </span>
+        </button>
 
-          {/* Center: Dynamic ASCII Loading Animation during transitions */}
-          <div className="hidden md:flex items-center justify-center min-w-[260px]">
-            {isTransitioning && (
-              <AsciiLoader
-                variant="inline"
-                label={transitionLabel}
-                durationMs={450}
-              />
-            )}
-          </div>
-
-          {/* Right Action: User Profile, Inbox, Sign In & Contact Us */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {isAuthenticated ? (
-              <>
-                {/* Direct link to Beta Testing Workspace */}
-                <button
-                  onClick={() => onNavigate('beta-dashboard')}
-                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-full border transition-all cursor-pointer ${
-                    currentPage === 'beta-dashboard'
-                      ? 'bg-[#141413] text-[#FAF8F5] border-[#141413]'
-                      : 'bg-white hover:bg-[#FAF8F5] text-[#141413] border-[#E3E0D8]'
-                  }`}
-                  title="Beta Testing Workspace"
-                >
-                  <ShieldCheck size={13} className="text-[#E5182B]" />
-                  <span>Workspace</span>
-                </button>
-
-                {/* Inbox Button */}
-                <button
-                  onClick={onOpenInbox}
-                  className="relative p-2 text-[#474540] hover:text-[#141413] hover:bg-[#E3E0D8]/40 rounded-full transition-colors cursor-pointer"
-                  title="Open Institutional Inbox (Approvals & Dispatches)"
-                  aria-label="Open Inbox"
-                >
-                  <Inbox size={19} />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#E5182B] text-white text-[10px] font-mono font-bold flex items-center justify-center rounded-full shadow-sm animate-pulse">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Profile Pill Dropdown */}
-                <ProfileDropdown 
-                  onNavigate={onNavigate} 
-                  onOpenInbox={onOpenInbox} 
-                />
-              </>
-            ) : (
-              /* Sign In / Register Button */
+        {/* Center: Framer Inspo Architectural Tab Group */}
+        <nav 
+          aria-label="Main Navigation" 
+          className="hidden md:flex items-center border border-[#CFCFC7] bg-white/40 backdrop-blur-sm h-10 select-none"
+        >
+          {navItems.map((item) => {
+            const active = item.isActive ? item.isActive(currentPage) : currentPage === item.id;
+            return (
               <button
-                onClick={() => onNavigate('auth')}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold rounded-full border transition-all cursor-pointer ${
-                  currentPage === 'auth'
-                    ? 'bg-[#141413] text-white border-[#141413]'
-                    : 'bg-white hover:bg-[#FAF8F5] text-[#141413] border-[#E3E0D8] hover:border-[#141413]'
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`h-full px-4 lg:px-5 flex items-center justify-center relative cursor-pointer text-xs font-sans transition-colors duration-150 ${
+                  active 
+                    ? 'text-[#111111] font-medium bg-[#F4F4F1]/90' 
+                    : 'text-[#66665F] hover:text-[#111111] hover:bg-[#F4F4F1]/50'
                 }`}
-                title="Sign In or Create Account"
               >
-                <LogIn size={13} className="text-[#E5182B]" />
-                <span>Sign In</span>
+                <span>{item.label}</span>
+                {/* Active Orange/Red Bottom Indicator Bar matching Overview */}
+                {active && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#FF4F00]" />
+                )}
               </button>
-            )}
+            );
+          })}
+        </nav>
 
-            {/* Contact Us CTA */}
-            <button
-              onClick={() => onNavigate('contact')}
-              className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 cursor-pointer shadow-sm ${
-                currentPage === 'contact'
-                  ? 'bg-[#FF2A3D] text-white shadow-[#E5182B]/30'
-                  : 'bg-[#E5182B] hover:bg-[#FF2A3D] text-white shadow-md shadow-[#E5182B]/20 hover:scale-105 active:scale-95'
-              }`}
-            >
-              <span>Contact Us</span>
-              <ArrowUpRight size={14} className="opacity-90" />
-            </button>
-          </div>
+        {/* Right Action: User Controls or Sign In / CTA */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {isAuthenticated ? (
+            <>
+              {/* Beta Workspace */}
+              <button
+                onClick={() => handleNavClick('beta-dashboard')}
+                className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-full border transition-all cursor-pointer ${
+                  currentPage === 'beta-dashboard'
+                    ? 'bg-[#111110] text-white border-[#111110]'
+                    : 'bg-white hover:bg-[#F4F4F1] text-[#111111] border-[#E2E2DC] hover:border-[#111111]'
+                }`}
+                title="Beta Testing Workspace"
+              >
+                <ShieldCheck size={13} className="text-[#FF4F00]" />
+                <span>Workspace</span>
+              </button>
+
+              {/* Inbox Trigger */}
+              <button
+                onClick={onOpenInbox}
+                className="relative p-2 text-[#66665F] hover:text-[#111111] hover:bg-[#E2E2DC]/50 rounded-full transition-colors cursor-pointer"
+                title="Open Institutional Inbox"
+                aria-label="Open Inbox"
+              >
+                <Inbox size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#FF4F00] text-white text-[10px] font-mono font-bold flex items-center justify-center rounded-full shadow-sm animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Profile Dropdown */}
+              <ProfileDropdown 
+                onNavigate={onNavigate} 
+                onOpenInbox={onOpenInbox} 
+              />
+            </>
+          ) : (
+            <>
+              {/* Sign In link */}
+              <button
+                onClick={() => handleNavClick('auth')}
+                className={`hidden sm:inline-block px-3 py-1.5 text-xs font-sans font-medium transition-colors cursor-pointer ${
+                  currentPage === 'auth' ? 'text-[#111111] underline' : 'text-[#66665F] hover:text-[#111111]'
+                }`}
+              >
+                Sign In
+              </button>
+
+              {/* Request Access Pill Button */}
+              <button
+                onClick={() => handleNavClick('contact')}
+                className="px-4 py-2 bg-[#111110] hover:bg-[#2C2C29] text-white text-xs font-sans font-medium rounded-full transition-all duration-150 flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+              >
+                <span>Request access</span>
+                <ArrowUpRight size={13} />
+              </button>
+            </>
+          )}
+
+          {/* Mobile Hamburger Button */}
+          <button
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            className="md:hidden p-2 text-[#66665F] hover:text-[#111111] hover:bg-[#E2E2DC]/40 rounded transition-colors cursor-pointer"
+            aria-label="Toggle Navigation Menu"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Drawer Menu matching inspo */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-b border-[#E2E2DC] bg-[#F4F4F1] animate-in slide-in-from-top duration-200">
+          <div className="max-w-[1120px] mx-auto px-4 py-4 space-y-1 divide-y divide-[#E2E2DC]">
+            <div className="space-y-1 pb-3">
+              {navItems.map((item) => {
+                const active = item.isActive ? item.isActive(currentPage) : currentPage === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`w-full py-2.5 px-3 flex items-center justify-between rounded text-sm transition-colors cursor-pointer ${
+                      active ? 'bg-white font-medium text-[#111111]' : 'text-[#66665F] hover:bg-white/50 hover:text-[#111111]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-xs text-[#8F8F87]">{item.number}</span>
+                      <span>{item.label}</span>
+                    </div>
+                    {active && <span className="w-1.5 h-1.5 rounded-full bg-[#FF4F00]" />}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="pt-3 flex items-center justify-between">
+              {!isAuthenticated ? (
+                <button
+                  onClick={() => handleNavClick('auth')}
+                  className="text-xs font-mono text-[#66665F] hover:text-[#111111] py-2 px-1"
+                >
+                  Sign In to Beta
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleNavClick('beta-dashboard')}
+                  className="text-xs font-mono text-[#111111] font-semibold py-2 px-1"
+                >
+                  Beta Workspace
+                </button>
+              )}
+
+              <button
+                onClick={() => handleNavClick('contact')}
+                className="px-4 py-2 bg-[#111110] text-white text-xs font-medium rounded-full cursor-pointer"
+              >
+                Request access
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

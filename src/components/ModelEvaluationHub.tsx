@@ -77,28 +77,28 @@ export const ModelEvaluationHub: React.FC = () => {
   const currentVariant = MODEL_VARIANTS.find(v => v.id === selectedVariantId) || MODEL_VARIANTS[0];
 
   return (
-    <div className="w-full bg-[#FAF8F5] text-[#141413] border border-[#E3E0D8] p-6 sm:p-10 font-sans">
-      {/* Title & Introduction matching Anthropic video frames 00:10 - 00:11 */}
+    <div className="w-full bg-white text-[#111111] border border-[#E2E2DC] p-6 sm:p-10 font-sans">
+      {/* Title & Introduction */}
       <div className="text-center max-w-2xl mx-auto space-y-3 pb-8">
         <div className="font-mono text-xs uppercase tracking-widest text-[#E5182B]">
           TRANSPARENCY & VERIFICATION HUB
         </div>
-        <h2 className="text-2xl sm:text-4xl font-serif text-[#141413] tracking-tight">
+        <h2 className="text-2xl sm:text-4xl font-heading font-medium text-[#111111] tracking-[-0.03em]">
           Aakashavani Technical System Report
         </h2>
-        <p className="text-xs sm:text-sm text-[#66645E] leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#66665F] leading-relaxed font-sans">
           A rigorous overview of model capabilities, safety boundaries, adversarial evaluation benchmarks, and continuous epistemic verification protocols.
         </p>
       </div>
 
-      {/* Numbered Tabs matching Anthropic video frame 00:10 */}
-      <div className="flex border-b border-[#E3E0D8] mb-8 overflow-x-auto text-xs sm:text-sm font-medium">
+      {/* Numbered Tabs */}
+      <div className="flex border-b border-[#E2E2DC] mb-8 overflow-x-auto text-xs sm:text-sm font-medium">
         <button
           onClick={() => setSelectedTab('report')}
           className={`pb-3 px-4 flex items-center gap-2 cursor-pointer border-b-2 transition-all whitespace-nowrap ${
             selectedTab === 'report'
-              ? 'border-[#141413] text-[#141413] font-semibold'
-              : 'border-transparent text-[#87857F] hover:text-[#141413]'
+              ? 'border-[#111110] text-[#111110] font-semibold'
+              : 'border-transparent text-[#88887F] hover:text-[#111110]'
           }`}
         >
           <span className="font-mono text-xs text-[#E5182B]">01</span>
@@ -109,8 +109,8 @@ export const ModelEvaluationHub: React.FC = () => {
           onClick={() => setSelectedTab('trust')}
           className={`pb-3 px-4 flex items-center gap-2 cursor-pointer border-b-2 transition-all whitespace-nowrap ${
             selectedTab === 'trust'
-              ? 'border-[#141413] text-[#141413] font-semibold'
-              : 'border-transparent text-[#87857F] hover:text-[#141413]'
+              ? 'border-[#111110] text-[#111110] font-semibold'
+              : 'border-transparent text-[#88887F] hover:text-[#111110]'
           }`}
         >
           <span className="font-mono text-xs text-[#E5182B]">02</span>
@@ -121,8 +121,8 @@ export const ModelEvaluationHub: React.FC = () => {
           onClick={() => setSelectedTab('commitments')}
           className={`pb-3 px-4 flex items-center gap-2 cursor-pointer border-b-2 transition-all whitespace-nowrap ${
             selectedTab === 'commitments'
-              ? 'border-[#141413] text-[#141413] font-semibold'
-              : 'border-transparent text-[#87857F] hover:text-[#141413]'
+              ? 'border-[#111110] text-[#111110] font-semibold'
+              : 'border-transparent text-[#88887F] hover:text-[#111110]'
           }`}
         >
           <span className="font-mono text-xs text-[#E5182B]">03</span>
@@ -130,17 +130,17 @@ export const ModelEvaluationHub: React.FC = () => {
         </button>
       </div>
 
-      {/* Model Selection Pills matching Anthropic video frame 00:11 */}
+      {/* Model Selection Pills */}
       <div className="flex flex-wrap items-center gap-2 mb-8">
-        <span className="text-xs font-mono text-[#87857F] mr-2">VARIANT:</span>
+        <span className="text-xs font-mono text-[#88887F] mr-2">VARIANT:</span>
         {MODEL_VARIANTS.map(variant => (
           <button
             key={variant.id}
             onClick={() => setSelectedVariantId(variant.id)}
-            className={`px-3.5 py-1.5 text-xs font-mono transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 text-xs font-mono rounded-full transition-all cursor-pointer ${
               selectedVariantId === variant.id
-                ? 'bg-[#141413] text-[#FAF8F5] font-semibold'
-                : 'bg-[#F0EEE6] hover:bg-[#E8E4DA] text-[#4F4D47]'
+                ? 'bg-[#111110] text-white font-medium'
+                : 'bg-[#F4F4F1] hover:bg-[#E2E2DC] text-[#66665F]'
             }`}
           >
             {variant.name}
@@ -148,52 +148,52 @@ export const ModelEvaluationHub: React.FC = () => {
         ))}
       </div>
 
-      {/* Tab 1: Model Report Table matching Anthropic video frame 00:11 */}
+      {/* Tab 1: Model Report Table */}
       {selectedTab === 'report' && (
         <div className="space-y-6">
-          <div className="border border-[#E3E0D8] divide-y divide-[#E3E0D8] bg-white text-xs sm:text-sm">
+          <div className="border border-[#E2E2DC] divide-y divide-[#E2E2DC] bg-white text-xs sm:text-sm">
             <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-              <div className="md:col-span-3 font-semibold text-[#141413] font-mono text-xs uppercase tracking-wider">
+              <div className="md:col-span-3 font-semibold text-[#111110] font-mono text-xs uppercase tracking-wider">
                 Model Classification
               </div>
-              <div className="md:col-span-9 text-[#42403B]">
+              <div className="md:col-span-9 text-[#474540]">
                 {currentVariant.name} · {currentVariant.tag}
               </div>
             </div>
 
             <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-              <div className="md:col-span-3 font-semibold text-[#141413] font-mono text-xs uppercase tracking-wider">
+              <div className="md:col-span-3 font-semibold text-[#111110] font-mono text-xs uppercase tracking-wider">
                 System Scope
               </div>
-              <div className="md:col-span-9 text-[#42403B] leading-relaxed">
+              <div className="md:col-span-9 text-[#474540] leading-relaxed">
                 {currentVariant.description}
               </div>
             </div>
 
             <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-              <div className="md:col-span-3 font-semibold text-[#141413] font-mono text-xs uppercase tracking-wider">
+              <div className="md:col-span-3 font-semibold text-[#111110] font-mono text-xs uppercase tracking-wider">
                 Training Manifold
               </div>
-              <div className="md:col-span-9 text-[#42403B] leading-relaxed">
+              <div className="md:col-span-9 text-[#474540] leading-relaxed">
                 {currentVariant.benchmarks}
               </div>
             </div>
 
             <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-              <div className="md:col-span-3 font-semibold text-[#141413] font-mono text-xs uppercase tracking-wider">
+              <div className="md:col-span-3 font-semibold text-[#111110] font-mono text-xs uppercase tracking-wider">
                 Acceptable Deployments
               </div>
-              <div className="md:col-span-9 text-[#42403B]">
+              <div className="md:col-span-9 text-[#474540]">
                 {currentVariant.acceptableUses}
               </div>
             </div>
 
-            <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start bg-[#FAF8F5]">
+            <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start bg-[#F4F4F1]">
               <div className="md:col-span-3 font-semibold text-[#E5182B] font-mono text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <ShieldAlert size={14} />
                 <span>Invalidation Trigger</span>
               </div>
-              <div className="md:col-span-9 text-[#141413] font-mono text-xs leading-relaxed">
+              <div className="md:col-span-9 text-[#111110] font-mono text-xs leading-relaxed">
                 {currentVariant.invalidationTrigger}
               </div>
             </div>
@@ -201,23 +201,23 @@ export const ModelEvaluationHub: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 2: Automated Behavioral & Epistemic Audit Scores matching Anthropic video frame 00:12 */}
+      {/* Tab 2: Automated Behavioral & Epistemic Audit Scores */}
       {selectedTab === 'trust' && (
         <div className="space-y-6">
           <div className="space-y-1">
-            <h3 className="text-lg font-serif font-bold text-[#141413]">
+            <h3 className="text-lg font-heading font-medium text-[#111110] tracking-[-0.02em]">
               Automated Epistemic Calibration & Robustness Audit
             </h3>
-            <p className="text-xs text-[#66645E]">
+            <p className="text-xs text-[#66665F] font-sans">
               Evaluated across 10,000 synthetic market shock episodes. Comparing VEIRON World Models against Multi-Agent LLMs and Traditional Quantitative Risk Desks.
             </p>
           </div>
 
-          <div className="border border-[#E3E0D8] p-6 bg-white space-y-6">
+          <div className="border border-[#E2E2DC] p-6 bg-white space-y-6">
             {currentVariant.scores.map((scoreItem, idx) => (
               <div key={idx} className="space-y-2">
                 <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="font-semibold text-[#141413]">{scoreItem.label}</span>
+                  <span className="font-semibold text-[#111110]">{scoreItem.label}</span>
                   <span className="text-[#E5182B] font-bold">VEIRON: {scoreItem.veironScore}%</span>
                 </div>
 
@@ -225,22 +225,22 @@ export const ModelEvaluationHub: React.FC = () => {
                 <div className="space-y-1.5 text-[10px] font-mono">
                   {/* VEIRON Bar */}
                   <div className="flex items-center gap-2">
-                    <span className="w-24 text-right text-[#141413] font-semibold">VEIRON</span>
-                    <div className="flex-1 bg-[#F0EEE6] h-3.5">
+                    <span className="w-24 text-right text-[#111110] font-semibold">VEIRON</span>
+                    <div className="flex-1 bg-[#F4F4F1] h-3.5">
                       <div
                         className="bg-[#E5182B] h-full transition-all duration-500"
                         style={{ width: `${scoreItem.veironScore}%` }}
                       />
                     </div>
-                    <span className="w-10 text-left font-bold text-[#141413]">{scoreItem.veironScore}%</span>
+                    <span className="w-10 text-left font-bold text-[#111110]">{scoreItem.veironScore}%</span>
                   </div>
 
                   {/* Multi-Agent LLM Bar */}
-                  <div className="flex items-center gap-2 text-[#87857F]">
+                  <div className="flex items-center gap-2 text-[#88887F]">
                     <span className="w-24 text-right">Agent Swarms</span>
-                    <div className="flex-1 bg-[#F0EEE6] h-3">
+                    <div className="flex-1 bg-[#F4F4F1] h-3">
                       <div
-                        className="bg-[#A19F97] h-full"
+                        className="bg-[#88887F] h-full"
                         style={{ width: `${scoreItem.standardLLMScore}%` }}
                       />
                     </div>
@@ -248,11 +248,11 @@ export const ModelEvaluationHub: React.FC = () => {
                   </div>
 
                   {/* Traditional Static Quant Bar */}
-                  <div className="flex items-center gap-2 text-[#87857F]">
+                  <div className="flex items-center gap-2 text-[#88887F]">
                     <span className="w-24 text-right">Static Quant</span>
-                    <div className="flex-1 bg-[#F0EEE6] h-3">
+                    <div className="flex-1 bg-[#F4F4F1] h-3">
                       <div
-                        className="bg-[#C4C0B4] h-full"
+                        className="bg-[#CFCFC7] h-full"
                         style={{ width: `${scoreItem.staticQuantScore}%` }}
                       />
                     </div>
@@ -268,11 +268,11 @@ export const ModelEvaluationHub: React.FC = () => {
       {/* Tab 3: Commitments */}
       {selectedTab === 'commitments' && (
         <div className="space-y-4">
-          <div className="border border-[#E3E0D8] p-6 bg-white space-y-4 text-xs sm:text-sm">
-            <h3 className="text-base font-serif font-bold text-[#141413]">
+          <div className="border border-[#E2E2DC] p-6 bg-white space-y-4 text-xs sm:text-sm">
+            <h3 className="text-base font-heading font-medium text-[#111110] tracking-[-0.02em]">
               Voluntary Epistemic Safety & Invalidation Mandates
             </h3>
-            <ul className="space-y-3 text-[#4F4D47] leading-relaxed">
+            <ul className="space-y-3 text-[#474540] leading-relaxed font-sans">
               <li className="flex items-start gap-2">
                 <CheckCircle2 size={16} className="text-[#E5182B] shrink-0 mt-0.5" />
                 <span>

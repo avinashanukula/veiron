@@ -3,19 +3,37 @@
 @theme {
   --font-serif: 'Newsreader', Garamond, 'Times New Roman', Georgia, serif;
   --font-display: 'Instrument Serif', Georgia, serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-heading: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', 'Martian Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  
   --color-veiron-red: #e5182b;
   --color-veiron-red-light: #ff2a3d;
-  --color-anthropic-cream: #FAF8F5;
-  --color-anthropic-stone: #F3EFEA;
-  --color-anthropic-surface: #EDE8DF;
-  --color-anthropic-text: #141413;
-  --color-anthropic-muted: #66645E;
-  --color-anthropic-border: #E3E0D8;
-  --color-anthropic-dark: #121211;
-  --color-anthropic-dark-surface: #181817;
-  --color-anthropic-dark-border: #262624;
+  --color-veiron-orange: #ff4f00;
+  
+  /* Overview Page Design Tokens (Framer Exact Match) */
+  --color-overview-bg: #F4F4F1;
+  --color-overview-surface: #FFFFFF;
+  --color-overview-border: #E2E2DC;
+  --color-overview-border-muted: #CFCFC7;
+  --color-overview-ink: #111111;
+  --color-overview-muted: #66665F;
+  --color-overview-muted-soft: #88887F;
+  --color-overview-dark-bg: #111110;
+  --color-overview-dark-surface: #1A1A18;
+  --color-overview-dark-border: #2C2C29;
+  --color-overview-dark-muted: #8F8F87;
+  
+  /* Backward-compatible Anthropic alias tokens re-anchored to Overview system */
+  --color-anthropic-cream: #F4F4F1;
+  --color-anthropic-stone: #F4F4F1;
+  --color-anthropic-surface: #FFFFFF;
+  --color-anthropic-text: #111111;
+  --color-anthropic-muted: #66665F;
+  --color-anthropic-border: #E2E2DC;
+  --color-anthropic-dark: #111110;
+  --color-anthropic-dark-surface: #1A1A18;
+  --color-anthropic-dark-border: #2C2C29;
 }
 
 @layer base {
@@ -24,11 +42,23 @@
   }
 
   body {
-    background-color: #FAF8F5;
-    color: #141413;
+    background-color: #F4F4F1;
+    color: #111111;
     font-family: var(--font-sans);
     overflow-x: hidden;
     padding-bottom: 84px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Overview Headings Style */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+    color: #111111;
+  }
+
+  h1 {
+    letter-spacing: -0.04em;
   }
 }
 
@@ -42,7 +72,12 @@
   scrollbar-width: none;
 }
 
-/* Editorial Serif Headings */
+/* Typography Utilities */
+.font-heading {
+  font-family: 'Geist', sans-serif;
+  font-feature-settings: "blwf" on, "cv03" on, "cv04" on, "cv09" on, "cv11" on;
+}
+
 .font-editorial {
   font-family: 'Newsreader', Garamond, Georgia, serif;
 }
@@ -51,30 +86,71 @@
   font-family: 'Instrument Serif', Georgia, serif;
 }
 
-/* Fine hairline borders matching Anthropic style */
-.border-anthropic {
-  border-color: #E3E0D8;
+/* Overview Layout Containers */
+.overview-container {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
-.border-anthropic-dark {
-  border-color: #262624;
+@media (min-width: 640px) {
+  .overview-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
 
-/* Clean Anthropic-style cards with hairline dividers */
-.anthropic-card {
-  background-color: #FAF8F5;
-  border-color: #E3E0D8;
-  transition: all 0.2s ease-in-out;
+@media (min-width: 1024px) {
+  .overview-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
-.anthropic-card:hover {
-  background-color: #F6F4EE;
+/* Hairline borders matching Overview page */
+.border-anthropic,
+.border-overview {
+  border-color: #E2E2DC;
 }
 
-/* Subtle editorial paper grain */
+.border-anthropic-dark,
+.border-overview-dark {
+  border-color: #2C2C29;
+}
+
+/* Clean Overview-style cards with hairline dividers */
+.anthropic-card,
+.overview-card {
+  background-color: #FFFFFF;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #E2E2DC;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.anthropic-card:hover,
+.overview-card:hover {
+  border-color: #CFCFC7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Overview Dot Grid Pattern (Matching Inspo Feature Cards) */
+.bg-dot-grid {
+  background-image: radial-gradient(#E2E2DC 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
+.bg-dot-grid-dark {
+  background-image: radial-gradient(#2C2C29 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
 .bg-paper-subtle {
-  background-image: radial-gradient(rgba(20, 20, 19, 0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(rgba(17, 17, 17, 0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 /* Clean technical scrollbar */
@@ -84,14 +160,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #FAF8F5;
+  background: #F4F4F1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D8D4CA;
+  background: #D2D2CC;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8B3A8;
+  background: #B2B2AC;
 }

@@ -28,51 +28,70 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#FAF8F5] text-[#141413]">
-      <section className="pt-16 pb-24 sm:pt-24 sm:pb-32">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          {/* Header */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 font-mono text-xs text-[#E5182B]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#E5182B]" />
-              <span className="font-semibold tracking-wider">INSTITUTIONAL RELATIONS</span>
+    <div className="min-h-screen bg-[#F4F4F1] text-[#111111]">
+      
+      {/* SECTION 01: Hero Header matching Overview 02 Hero Text structure */}
+      <section className="w-full border-b border-[#E2E2DC]">
+        <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row">
+          
+          {/* Left Index Column */}
+          <div className="hidden md:flex w-24 border-r border-[#E2E2DC] p-8 shrink-0 flex-col justify-start">
+            <span className="font-mono text-xs text-[#8F8F87]">01</span>
+          </div>
+
+          {/* Right Content */}
+          <div className="flex-1 p-6 sm:p-10 md:p-16 space-y-6">
+            <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#FF4F00] font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FF4F00]" />
+              <span>INSTITUTIONAL RELATIONS</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl font-serif text-[#141413] tracking-tight">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-heading font-medium text-[#111111] tracking-[-0.04em] leading-[1.0]">
               Contact Veiron
             </h1>
 
-            <p className="text-base sm:text-lg text-[#66645E] max-w-xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-[#66665F] max-w-xl leading-relaxed font-sans">
               For institutional briefings, prototype evaluation access (AKHVNI-0.1.2), or custom world-model deployment inquiries.
             </p>
           </div>
+        </div>
+      </section>
 
-          {/* Direct Email Card - Anthropic Clean Paper Block */}
-          <div className="p-8 sm:p-10 bg-white border border-[#E3E0D8] space-y-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#F0EEE6]">
+      {/* SECTION 02: Direct Email Channel */}
+      <section className="w-full border-b border-[#E2E2DC]">
+        <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row">
+          
+          {/* Left Index Column */}
+          <div className="hidden md:flex w-24 border-r border-[#E2E2DC] p-8 shrink-0 flex-col justify-start">
+            <span className="font-mono text-xs text-[#8F8F87]">02</span>
+          </div>
+
+          {/* Right Content */}
+          <div className="flex-1 p-6 sm:p-10 md:p-16 bg-white space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#E2E2DC]">
               <div>
-                <div className="font-mono text-xs text-[#87857F] uppercase tracking-wider">
+                <div className="font-mono text-xs text-[#88887F] uppercase tracking-wider">
                   Primary Direct Channel
                 </div>
-                <div className="text-sm text-[#474540] mt-0.5">
+                <div className="text-sm text-[#474540] mt-0.5 font-sans">
                   Direct correspondence with the engineering and research team:
                 </div>
               </div>
-              <div className="font-mono text-xs text-[#87857F]">
+              <div className="font-mono text-xs text-[#88887F]">
                 <span>ENCRYPTED INBOX</span>
               </div>
             </div>
 
             {/* Email Address Display */}
-            <div className="p-6 bg-[#FAF8F5] border border-[#E3E0D8] flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="p-6 bg-[#F4F4F1] border border-[#E2E2DC] flex flex-col md:flex-row items-center justify-between gap-6">
               <a
                 href="mailto:avianukula@gmail.com"
-                className="flex items-center gap-4 text-xl sm:text-2xl font-mono text-[#141413] hover:text-[#E5182B] transition-colors break-all group"
+                className="flex items-center gap-4 text-xl sm:text-2xl font-mono text-[#111111] hover:text-[#FF4F00] transition-colors break-all group"
               >
-                <div className="p-3 bg-white border border-[#E3E0D8] text-[#E5182B] group-hover:scale-105 transition-transform">
+                <div className="p-3 bg-white border border-[#E2E2DC] text-[#FF4F00] group-hover:scale-105 transition-transform">
                   <Mail size={22} />
                 </div>
-                <span className="underline underline-offset-4 decoration-[#E3E0D8] group-hover:decoration-[#E5182B]">
+                <span className="underline underline-offset-4 decoration-[#E2E2DC] group-hover:decoration-[#FF4F00]">
                   avianukula@gmail.com
                 </span>
               </a>
@@ -80,12 +99,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
               <div className="flex items-center gap-3 shrink-0">
                 <button
                   onClick={handleCopyEmail}
-                  className="px-4 py-2.5 bg-white hover:bg-[#F0EEE6] text-[#141413] border border-[#E3E0D8] font-mono text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-white hover:bg-[#F4F4F1] text-[#111111] border border-[#E2E2DC] hover:border-[#111111] font-mono text-xs rounded-full transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   {copied ? (
                     <>
-                      <Check size={14} className="text-emerald-600" />
-                      <span className="text-emerald-700 font-bold">COPIED</span>
+                      <Check size={14} className="text-[#1F9D55]" />
+                      <span className="text-[#1F9D55] font-bold">COPIED</span>
                     </>
                   ) : (
                     <>
@@ -97,7 +116,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
 
                 <a
                   href="mailto:avianukula@gmail.com?subject=Veiron%20Institutional%20Inquiry"
-                  className="px-5 py-2.5 bg-[#141413] hover:bg-[#2B2A28] text-white font-mono text-xs font-semibold tracking-wider transition-colors cursor-pointer flex items-center gap-2"
+                  className="px-5 py-2.5 bg-[#FF4F00] hover:bg-[#E54500] text-white font-mono text-xs font-medium tracking-wider rounded-full shadow-md shadow-[#FF4F00]/20 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
                 >
                   <span>WRITE EMAIL</span>
                   <ArrowRight size={13} />
@@ -106,46 +125,57 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* SLA Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs text-[#87857F] pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs text-[#88887F] pt-2">
               <div className="flex items-center gap-2">
-                <Clock size={14} className="text-[#141413]" />
+                <Clock size={14} className="text-[#111111]" />
                 <span>24-Hour Institutional SLA</span>
               </div>
               <div className="flex items-center gap-2">
-                <Lock size={14} className="text-[#141413]" />
+                <Lock size={14} className="text-[#111111]" />
                 <span>Mutual NDA Protocols Ready</span>
               </div>
               <div className="flex items-center gap-2">
-                <ShieldCheck size={14} className="text-[#141413]" />
+                <ShieldCheck size={14} className="text-[#111111]" />
                 <span>Air-Gapped Sovereign Cluster</span>
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Institutional Briefing Request Form */}
-          <div className="p-8 bg-white border border-[#E3E0D8] space-y-6">
-            <div className="border-b border-[#F0EEE6] pb-4">
-              <h2 className="text-xl font-serif font-bold text-[#141413]">
+      {/* SECTION 03: Institutional Briefing Request Form */}
+      <section className="w-full border-b border-[#E2E2DC]">
+        <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row">
+          
+          {/* Left Index Column */}
+          <div className="hidden md:flex w-24 border-r border-[#E2E2DC] p-8 shrink-0 flex-col justify-start">
+            <span className="font-mono text-xs text-[#8F8F87]">03</span>
+          </div>
+
+          {/* Right Content */}
+          <div className="flex-1 p-6 sm:p-10 md:p-16 bg-white space-y-6">
+            <div className="border-b border-[#E2E2DC] pb-4">
+              <h2 className="text-xl sm:text-2xl font-heading font-medium text-[#111111] tracking-[-0.02em]">
                 Request an Institutional Briefing
               </h2>
-              <p className="text-xs text-[#66645E] mt-1">
+              <p className="text-xs sm:text-sm text-[#66665F] mt-1 font-sans">
                 Share your organization's mandate and primary bottleneck to receive technical evaluation materials tailored to your deployment environment.
               </p>
             </div>
 
             {submitted ? (
-              <div className="p-8 bg-[#FAF8F5] border border-emerald-500/30 text-center space-y-3 font-mono">
-                <div className="inline-flex p-2 bg-emerald-100 text-emerald-700 rounded-full">
+              <div className="p-8 bg-[#F4F4F1] border border-[#1F9D55]/30 text-center space-y-3 font-mono">
+                <div className="inline-flex p-2 bg-[#1F9D55]/10 text-[#1F9D55] rounded-full">
                   <Check size={20} />
                 </div>
-                <div className="text-[#141413] font-bold text-sm">
+                <div className="text-[#111111] font-bold text-sm">
                   BRIEFING REQUEST TRANSMITTED
                 </div>
-                <p className="text-xs text-[#66645E] max-w-md mx-auto">
-                  Thank you. Our institutional team has received your inquiry. We will contact you at <span className="font-semibold text-[#141413]">{formState.email || 'your email'}</span> within 24 hours.
+                <p className="text-xs text-[#66665F] max-w-md mx-auto font-sans">
+                  Thank you. Our institutional team has received your inquiry. We will contact you at <span className="font-semibold text-[#111111]">{formState.email || 'your email'}</span> within 24 hours.
                 </p>
                 <div className="pt-2">
-                  <a href="mailto:avianukula@gmail.com" className="text-xs text-[#E5182B] underline">
+                  <a href="mailto:avianukula@gmail.com" className="text-xs text-[#FF4F00] underline">
                     Send supplementary material to avianukula@gmail.com
                   </a>
                 </div>
@@ -163,7 +193,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                       placeholder="e.g. Bridgewater / Citadel / Bank of England"
                       value={formState.institution}
                       onChange={(e) => setFormState({ ...formState, institution: e.target.value })}
-                      className="w-full bg-[#FAF8F5] border border-[#E3E0D8] text-[#141413] px-3.5 py-2.5 focus:border-[#141413] focus:outline-none transition-colors"
+                      className="w-full bg-[#F4F4F1] border border-[#E2E2DC] rounded-lg text-[#111111] px-3.5 py-2.5 focus:border-[#111111] focus:outline-none transition-colors"
                     />
                   </div>
 
@@ -174,7 +204,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                     <select
                       value={formState.type}
                       onChange={(e) => setFormState({ ...formState, type: e.target.value })}
-                      className="w-full bg-[#FAF8F5] border border-[#E3E0D8] text-[#141413] px-3.5 py-2.5 focus:border-[#141413] focus:outline-none transition-colors"
+                      className="w-full bg-[#F4F4F1] border border-[#E2E2DC] rounded-lg text-[#111111] px-3.5 py-2.5 focus:border-[#111111] focus:outline-none transition-colors"
                     >
                       <option value="Hedge Fund / Asset Manager">Hedge Fund / Quantitative Asset Manager</option>
                       <option value="Central Bank / Sovereign Wealth">Central Bank / Sovereign Wealth Fund</option>
@@ -195,7 +225,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                     placeholder="name@institution.com"
                     value={formState.email}
                     onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                    className="w-full bg-[#FAF8F5] border border-[#E3E0D8] text-[#141413] px-3.5 py-2.5 focus:border-[#141413] focus:outline-none transition-colors"
+                    className="w-full bg-[#F4F4F1] border border-[#E2E2DC] rounded-lg text-[#111111] px-3.5 py-2.5 focus:border-[#111111] focus:outline-none transition-colors"
                   />
                 </div>
 
@@ -208,17 +238,17 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                     placeholder="Describe your current challenge (e.g. non-stationary regime transition detection, liquidity crisis simulation, or alpha decay)..."
                     value={formState.message}
                     onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                    className="w-full bg-[#FAF8F5] border border-[#E3E0D8] text-[#141413] px-3.5 py-2.5 focus:border-[#141413] focus:outline-none transition-colors"
+                    className="w-full bg-[#F4F4F1] border border-[#E2E2DC] rounded-lg text-[#111111] px-3.5 py-2.5 focus:border-[#111111] focus:outline-none transition-colors font-sans"
                   />
                 </div>
 
-                <div className="pt-2 flex items-center justify-between">
-                  <div className="text-[11px] text-[#87857F]">
+                <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="text-[11px] text-[#88887F]">
                     Direct institutional disclosure under confidentiality guarantee.
                   </div>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-[#141413] hover:bg-[#2B2A28] text-white font-mono text-xs font-semibold rounded-full transition-colors cursor-pointer flex items-center gap-2"
+                    className="px-6 py-3 bg-[#111110] hover:bg-[#2C2C29] text-white font-sans text-xs font-medium rounded-full shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
                   >
                     <span>Transmit Briefing Request</span>
                     <Send size={12} />
